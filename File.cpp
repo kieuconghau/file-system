@@ -6,3 +6,5 @@ Entry* File::findParent(vector<string>& ancestorNameList) const
 {
 	return nullptr;
 }
+
+void File::add(Entry const& entry) {}
