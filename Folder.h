@@ -11,7 +11,7 @@ public:
 	~Folder();
 
 	Entry* findParent(vector<string>& ancestorNameList) const;
-	void add(Entry const& tempEntry);
+	Entry* add(Entry const& tempEntry);
 
 private:
 	Folder*			Parent;

@@ -20,7 +20,9 @@ public:
 	string getPath() const;
 	
 	virtual Entry* findParent(vector<string>& ancestorNameList) const;
-	virtual void add(Entry const& entry);
+	virtual Entry* add(Entry const& entry);
+
+	void seekToOffsetData(ofstream& file) const;
 
 private:
 	void splitPath();

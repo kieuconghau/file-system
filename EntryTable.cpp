@@ -10,7 +10,7 @@ EntryTable::~EntryTable()
 	delete this->Root;
 }
 
-void EntryTable::read(ifstream& file, VolumeInfo const& volumeInfo) const
+void EntryTable::read(ifstream& file, VolumeInfo const& volumeInfo)
 {
 	while (!volumeInfo.isEndOfEntryTable(file)) {
 		Entry tempEntry;
@@ -21,7 +21,7 @@ void EntryTable::read(ifstream& file, VolumeInfo const& volumeInfo) const
 		if (parent == nullptr) {
 			parent = this->Root;
 		}
-		parent->add(tempEntry);
+
+		this->EntryList.push_back(parent->add(tempEntry));
 	}
 }
-

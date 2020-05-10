@@ -39,7 +39,7 @@ Entry* Folder::findParent(vector<string>& ancestorNameList) const
 	return nullptr;
 }
 
-void Folder::add(Entry const& tempEntry) {
+Entry* Folder::add(Entry const& tempEntry) {
 	Entry* entry;
 
 	if (tempEntry.isFolder()) {
@@ -50,4 +50,6 @@ void Folder::add(Entry const& tempEntry) {
 	}
 
 	this->EntryList.push_back(entry);
+
+	return entry;
 }

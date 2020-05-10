@@ -10,9 +10,10 @@ public:
 	EntryTable();
 	~EntryTable();
 
-	void read(ifstream& file, VolumeInfo const& volumeInfo) const;
+	void read(ifstream& file, VolumeInfo const& volumeInfo);
 
 private:
 	Entry* Root;
+	vector<Entry*> EntryList;
 };
 
