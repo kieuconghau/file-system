@@ -41,6 +41,11 @@ bool Entry::isFolder() const
 	return Path.back() == SLASH;
 }
 
+bool Entry::isLocked() const
+{
+	return this->PathLen != 0;
+}
+
 bool Entry::hasName(string const& name) const
 {
 	return name == this->Name;

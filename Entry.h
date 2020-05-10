@@ -14,6 +14,7 @@ public:
 	void read(ifstream& file);
 	
 	bool isFolder() const;
+	bool isLocked() const;
 	bool hasName(string const& name) const;
 	vector<string> getAncestorNameList() const;
 	string getPath() const;
