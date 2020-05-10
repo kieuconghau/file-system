@@ -37,7 +37,7 @@ void Volume::open(string const& volumeFilePath)
 	- Import:				I
 	- Export:				E
 	- Delete:				D
-	- Set/Cancel Password:	P
+	- Set/Remove Password:	P
 	- Move down:			Down
 	- Move up:				Up
 	- Open folder:			Enter

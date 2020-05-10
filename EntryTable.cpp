@@ -12,7 +12,7 @@ EntryTable::~EntryTable()
 
 void EntryTable::read(ifstream& file, VolumeInfo const& volumeInfo) const
 {
-	while (file.tellg() != volumeInfo.OffsetEntryTable + volumeInfo.SizeEntryTable) {
+	while (!volumeInfo.isEndOfEntryTable(file)) {
 		Entry tempEntry;
 		tempEntry.read(file);
 

@@ -32,3 +32,8 @@ void VolumeInfo::seekToHeadOfEntryTable(ifstream& file) const
 	file.seekg(this->OffsetEntryTable);
 }
 
+bool VolumeInfo::isEndOfEntryTable(ifstream& file) const
+{
+	return file.tellg() == this->OffsetEntryTable + this->SizeEntryTable;
+}
+
