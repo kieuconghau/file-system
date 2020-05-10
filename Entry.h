@@ -34,9 +34,9 @@ protected:
 	string		Path;
 	string		Password;
 	/*==========*/
+	string Name;
 
 private:
-	string Name;
 	vector<string>		AncestorNameList;
 	static const char	SLASH = '/';
 };
