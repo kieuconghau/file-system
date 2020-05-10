@@ -108,3 +108,37 @@ void Entry::splitPath()
 		this->AncestorNameList.shrink_to_fit();
 	}
 }
+
+void Entry::display(bool selected) {
+	if (selected) setColor(15, 1);
+
+	//Name
+	cout << " " << Name;
+	printSpace(49 - Name.length());
+
+	//Size
+	string s = numCommas(Size);
+	printSpace(20 - s.length());
+	cout << s << "   ";
+
+	//Type
+	gotoXY(whereX() + 10, whereY());
+
+	//Modified
+	//cout << "   " << date << " " << time;
+	//printSpace(27 - date.length() - 1 - time.length());
+	printSpace(30);
+	
+	//Password
+	if (isLocked()) {
+		printSpace(10 - 4);
+		cout << "[ON]";
+	}
+	else {
+		printSpace(10 - 5);
+		cout << "[OFF]";
+	}
+	cout << endl;
+
+	if (selected) setColor(15, 0);
+}

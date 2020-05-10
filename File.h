@@ -11,5 +11,7 @@ public:
 
 	Entry* findParent(vector<string>& ancestorNameList) const;
 	void add(Entry const& entry);
+	
+	void display(bool selected);
 };
 

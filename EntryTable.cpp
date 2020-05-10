@@ -1,5 +1,6 @@
 #include "EntryTable.h"
 
+
 EntryTable::EntryTable()
 {
 	this->Root = new Folder();
@@ -25,3 +26,10 @@ void EntryTable::read(ifstream& file, VolumeInfo const& volumeInfo) const
 	}
 }
 
+void EntryTable::open() {
+	GUI scr;
+
+	scr.setWindows(W, H);
+
+	scr.Navigation(this->Root);
+}

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "GUI.h"
 #include "VolumeInfo.h"
 #include "Entry.h"
 #include "Folder.h"
@@ -11,6 +11,7 @@ public:
 	~EntryTable();
 
 	void read(ifstream& file, VolumeInfo const& volumeInfo) const;
+	void open();
 
 private:
 	Entry* Root;

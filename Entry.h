@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include "Console.h"
 using namespace std;
 
 class Entry
@@ -24,6 +25,11 @@ public:
 	virtual void add(Entry const& entry);
 
 	void write(ofstream& file) const;
+
+	virtual void display(bool selected);
+	virtual void show(int selected) {};
+	virtual int getListSize() { return 0; };
+	virtual Entry* getEntryInList(int i) { return  nullptr; };
 
 private:
 	void splitPath();

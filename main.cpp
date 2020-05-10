@@ -1,4 +1,5 @@
 #include "Volume.h"
+#include "GUI.h"
 
 void createVolume_test(string const& pathVolumeFile, vector<Entry> const& entryList);
 

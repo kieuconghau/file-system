@@ -30,6 +30,7 @@ void Volume::open(string const& volumeFilePath)
 	}
 	file.close();
 
+	this->EntryTable.open();
 
 	/*
 	Show list of files/folders in this volume.
