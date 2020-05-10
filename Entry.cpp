@@ -51,6 +51,11 @@ vector<string> Entry::getAncestorNameList() const
 	return this->AncestorNameList;
 }
 
+string Entry::getPath() const
+{
+	return this->Path;
+}
+
 Entry* Entry::findParent(vector<string>& ancestorNameList) const
 {
 	return nullptr;

@@ -16,6 +16,7 @@ public:
 	bool isFolder() const;
 	bool hasName(string const& name) const;
 	vector<string> getAncestorNameList() const;
+	string getPath() const;
 	
 	virtual Entry* findParent(vector<string>& ancestorNameList) const;
 	virtual void add(Entry const& entry);
