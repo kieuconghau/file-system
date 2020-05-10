@@ -7,4 +7,4 @@ Entry* File::findParent(vector<string>& ancestorNameList) const
 	return nullptr;
 }
 
-Entry* File::add(Entry const& entry) {}
+Entry* File::add(Entry const& entry) { return nullptr; }

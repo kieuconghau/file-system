@@ -66,7 +66,7 @@ Entry* Entry::findParent(vector<string>& ancestorNameList) const
 	return nullptr;
 }
 
-Entry* Entry::add(Entry const& entry) {}
+Entry* Entry::add(Entry const& entry) { return nullptr; }
 
 void Entry::seekToOffsetData(ofstream& file) const
 {
