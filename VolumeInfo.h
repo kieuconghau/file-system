@@ -1,7 +1,10 @@
 #pragma once
+
 #include <iostream>
 #include <fstream>
 using namespace std;
+
+#include "Entry.h"
 
 class VolumeInfo
 {
@@ -14,6 +17,8 @@ public:
 	void read(ifstream& file) const;
 	bool checkSignature(ifstream& file) const;
 	void seekToHeadOfEntryTable(ifstream& file) const;
+
+	void write(ofstream& file, Entry const& entry);
 
 private:
 	/*==========*/

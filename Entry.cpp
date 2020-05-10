@@ -18,6 +18,15 @@ Entry::Entry(Entry const& entry)
 	*this = entry;
 }
 
+Entry::Entry(uint32_t const& size, string const& path, string const& password) : Entry()
+{
+	this->Size = size;
+	this->Path = path;
+	this->Password = password;
+	this->PathLen = path.length();
+	this->PasswordLen = password.length();
+}
+
 void Entry::read(ifstream& file)
 {
 	file.read((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
@@ -67,6 +76,18 @@ Entry* Entry::findParent(vector<string>& ancestorNameList) const
 }
 
 void Entry::add(Entry const& entry) {}
+
+void Entry::write(ofstream& file) const
+{
+	file.write((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
+	file.write((char*)&this->ModifiedDate, sizeof(this->ModifiedDate));
+	file.write((char*)&this->Size, sizeof(this->Size));
+	file.write((char*)&this->PathLen, sizeof(this->PathLen));
+	file.write((char*)&this->PasswordLen, sizeof(this->PasswordLen));
+	file.write((char*)&this->OffsetData, sizeof(this->OffsetData));
+	file.write((char*)this->Path.c_str(), this->PathLen);
+	file.write((char*)this->Password.c_str(), this->PasswordLen);
+}
 
 void Entry::splitPath()
 {

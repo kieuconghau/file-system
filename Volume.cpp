@@ -37,10 +37,10 @@ void Volume::open(string const& volumeFilePath)
 	- Import:				I
 	- Export:				E
 	- Delete:				D
-	- Set/Cancel Password:	P
+	- Set/Remove Password:	P
 	- Move down:			Down
 	- Move up:				Up
-	- Open folder:			Enter
+	- Open a folder:		Enter
 	- Back:					Backspace
 	- Exit:					Escape
 	*/
@@ -60,6 +60,17 @@ bool Volume::isVolumeFile(string const& volumeFilePath)
 	file.close();
 
 	return isVF;
+}
+
+void Volume::addEntry_test(Entry const& entry)
+{
+	ofstream file(this->Path, ios_base::out || ios_base::app);
+
+	if (file.is_open()) {
+		this->VolumeInfo.write(file, entry);
+	}
+
+	file.close();
 }
 
 void Volume::seekToHeadOfVolumeInfo(ifstream& file) const

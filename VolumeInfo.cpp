@@ -32,3 +32,16 @@ void VolumeInfo::seekToHeadOfEntryTable(ifstream& file) const
 	file.seekg(this->OffsetEntryTable);
 }
 
+void VolumeInfo::write(ofstream& file, Entry const& entry)
+{
+	file.clear();
+	file.seekp(0 - (int)sizeof(VolumeInfo), ios_base::end);
+
+	entry.write(file);
+	this->SizeEntryTable = (size_t)file.tellp() - this->OffsetEntryTable;
+
+	file.write((char*)&this->Signature, sizeof(this->Signature));
+	file.write((char*)&this->SizeEntryTable, sizeof(this->SizeEntryTable));
+	file.write((char*)&this->OffsetEntryTable, sizeof(this->OffsetEntryTable));
+}
+

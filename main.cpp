@@ -1,10 +1,36 @@
 #include "Volume.h"
 
-int main() {
-	Volume vol;
+void createVolume_test(string const& pathVolumeFile, vector<Entry> const& entryList);
 
-	if (vol.isVolumeFile("test"))
-		vol.open("test");
+int main() {
+	string const pathVolumeFile = "test";
+
+	// Create volume
+	vector<Entry> entryList = {
+		Entry(120, "Folder1/", ""),
+		Entry(50, "Folder1/Folder2/", "abc"),
+		Entry(50, "Folder1/Folder2/Folder3/", ""),
+		Entry(50, "Folder1/Folder2/Folder3/fileA.txt", "xyz"),
+		Entry(70, "Folder1/fileB.bin", ""),
+		Entry(25, "fileC.abc", "123")
+	};
+
+	createVolume_test(pathVolumeFile, entryList);
+
+	// Read volume
+	Volume vol;
+	if (vol.isVolumeFile(pathVolumeFile)) {
+		vol.open(pathVolumeFile);
+	}
 
 	return 0;
+}
+
+void createVolume_test(string const& pathVolumeFile, vector<Entry> const& entryList) {
+	Volume vol;
+	vol.create("test");
+
+	for (Entry entry : entryList) {
+		vol.addEntry_test(entry);
+	}
 }

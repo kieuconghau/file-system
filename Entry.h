@@ -9,6 +9,7 @@ class Entry
 public:
 	Entry();
 	Entry(Entry const& entry);
+	Entry(uint32_t const& size, string const& path, string const& password);
 	virtual ~Entry() = default;
 
 	void read(ifstream& file);
@@ -21,6 +22,8 @@ public:
 	
 	virtual Entry* findParent(vector<string>& ancestorNameList) const;
 	virtual void add(Entry const& entry);
+
+	void write(ofstream& file) const;
 
 private:
 	void splitPath();

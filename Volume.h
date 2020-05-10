@@ -13,6 +13,8 @@ public:
 	void open(string const& volumeFilePath);
 	bool isVolumeFile(string const& volumeFilePath);
 
+	void addEntry_test(Entry const& entry);
+
 private:
 	void seekToHeadOfVolumeInfo(ifstream& file) const;
 	void seekToHeadOfEntryTable(ifstream& file) const;
