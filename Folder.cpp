@@ -2,17 +2,17 @@
 
 Folder::Folder()
 {
-	this->Parent = nullptr;
+
 }
 
 Folder::Folder(Entry const& entry, Folder* parent) : Entry(entry)
 {
-	this->Parent = parent;
+
 }
 
 Folder::~Folder()
 {
-	this->Parent = nullptr;
+
 
 	for (Entry* entry : this->EntryList) {
 		delete entry;
@@ -78,7 +78,7 @@ void Folder::displayParent(bool selected) {
 }
 
 void Folder::show(int selected) {
-	Parent->displayParent(selected == 0);
+	displayParent(selected == 0);
 
 	for (int i = 0; i < EntryList.size(); i++) {
 		EntryList[i]->display(selected - 1 == i);

@@ -9,11 +9,11 @@ int main() {
 	// Create volume
 	vector<Entry> entryList = {
 		Entry(120, "Folder1/", ""),
-		Entry(50, "Folder1/Folder2/", "abc"),
+		Entry(50, "Folder1/Folder2/", ""),
 		Entry(50, "Folder1/Folder2/Folder3/", ""),
-		Entry(50, "Folder1/Folder2/Folder3/fileA.txt", "xyz"),
+		Entry(50, "Folder1/Folder2/Folder3/fileA.txt", ""),
 		Entry(70, "Folder1/fileB.bin", ""),
-		Entry(25, "fileC.abc", "123")
+		Entry(25, "fileC.abc", "")
 	};
 
 	createVolume_test(pathVolumeFile, entryList);

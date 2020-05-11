@@ -59,6 +59,7 @@ void GUI::Navigation(Entry* f) {
 
             // ============= ENTER =============
             if (GetKeyState(0x0D) & 0x8000) {
+                /*
                 if (line != 0) {
                     if (f->getEntryInList(line - 1)->isFolder())
                         Navigation(f->getEntryInList(line - 1));
@@ -67,6 +68,8 @@ void GUI::Navigation(Entry* f) {
                     back = true;
                     reset();
                 }
+                */
+                EnterFolder(f, back);
             }
 
             // ============= UP =============
@@ -96,6 +99,10 @@ void GUI::Navigation(Entry* f) {
                 esc = true;
             }
 
+            // ============= PASSWORD =============
+            if (GetKeyState(0x50) & 0x8000) {
+                SetPassword(f->getEntryInList(line - 1));
+            }
 
             // Refresh menu
             if (!esc) {
@@ -106,6 +113,7 @@ void GUI::Navigation(Entry* f) {
 
         if (back||esc) break;
     }
+    
 }
 
 void GUI::clearBackground() {
@@ -115,6 +123,7 @@ void GUI::clearBackground() {
     printSpace(123);
     gotoXY(0, line + 2);
     printSpace(123); 
+    gotoXY(0, 0);
 
     setColor(15, 0);
 }
@@ -123,10 +132,70 @@ void GUI::reset() {
     line = 0;
 }
 
-void GUI::Function() {
-    
+string GUI::EnterPassword() {
+    string pw, repw;
+    while (true) {
+        cout << "Password:\t"; cin >> pw;
+        cout << "Re-enter:\t"; cin >> repw;
+
+        if (pw.compare(repw) == 0) {
+            break;
+        }
+        else {
+            clrscr();
+            cout << "Error: Password is not the same." << endl;
+        }
+    }
+    return pw;
 }
 
-void GUI::sleep(int x) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+void GUI::EnterFolder(Entry* parent, bool &back) {
+    if (line == 0) {
+        back = true; 
+        reset();
+        return;
+    }
+
+    string pw;
+
+    Entry* f = parent->getEntryInList(line- 1);
+
+    if (!f->isFolder()) return;
+
+    if (f->isLocked()) {
+        clrscr();
+        clearBackground();
+
+        pw = EnterPassword();
+        
+        if (f->checkPassword(pw)) Navigation(f);
+        else {
+            cout << "Error: Invalid password." << endl;
+            system("pause");
+        }
+    }
+    else {
+        Navigation(f);
+    }
 }
+
+void GUI::SetPassword(Entry *f) {
+    if (line == 0) return; // Case parent folder
+
+    clrscr();
+    clearBackground();
+
+    string pw = EnterPassword();
+
+    if (f->isLocked()) {
+        if (f->checkPassword(pw)) f->resetPassword();
+        else {
+            cout << "Error: Invalid password.";
+            system("pause");
+        }
+    }
+    else {
+        f->setPassword(pw);
+    }
+}
+

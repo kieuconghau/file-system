@@ -2,18 +2,27 @@
 #include <string>
 #include <iostream>
 #include <Windows.h>
+#include <chrono>
+#include <thread>
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 
 void printSpace(int n);
 string numCommas(int value);
 
-//Console
+// Console
 void setColor(int textColor, int bgColor);
 void clrscr();
 void gotoXY(const unsigned int& x, const unsigned int& y);
 unsigned int whereX();
 unsigned int whereY();
+void sleep(int x);
+
+// Simple Hash Function
+unsigned int SHF(string input);
+string toHex(unsigned int input);
 
 /*
 Name         | Value

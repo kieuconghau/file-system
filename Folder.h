@@ -20,7 +20,6 @@ public:
 	Entry* getEntryInList(int i) { return EntryList[i]; };
 
 private:
-	Folder*			Parent;
 	vector<Entry*>	EntryList;
 };
 

@@ -59,3 +59,29 @@ unsigned int whereY() {
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     return csbi.dwCursorPosition.Y;
 }
+
+void sleep(int x) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+}
+
+unsigned int SHF(string input) {
+    unsigned int Init = 124564352;
+    unsigned int hashcode = 5674356;
+    unsigned int hash;
+
+    for (int i = 0; i < input.length(); i++) {
+        hash = hash ^ (input[i]);
+        hash = hash * hashcode;
+    }
+
+    return hash;
+}
+
+string toHex(unsigned int input) {
+    string hexhash;
+    stringstream hexstream;
+    hexstream << hex << input;
+    hexhash = hexstream.str();
+    std::transform(hexhash.begin(), hexhash.end(), hexhash.begin(), ::toupper);
+    return hexhash;
+}

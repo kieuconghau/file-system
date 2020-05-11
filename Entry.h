@@ -30,6 +30,9 @@ public:
 	virtual void show(int selected) {};
 	virtual int getListSize() { return 0; };
 	virtual Entry* getEntryInList(int i) { return  nullptr; };
+	void setPassword(string pw);
+	void resetPassword();
+	bool checkPassword(string pw);
 
 private:
 	void splitPath();

@@ -52,7 +52,7 @@ bool Entry::isFolder() const
 
 bool Entry::isLocked() const
 {
-	return this->PathLen != 0;
+	return this->PasswordLen != 0;
 }
 
 bool Entry::hasName(string const& name) const
@@ -142,3 +142,19 @@ void Entry::display(bool selected) {
 
 	if (selected) setColor(15, 0);
 }
+
+void Entry::setPassword(string pw) {
+	this->Password = toHex(SHF(pw));
+	this->PasswordLen = Password.length();
+}
+
+void Entry::resetPassword() {
+	this->Password = "";
+	this->PasswordLen = 0;
+}
+
+bool Entry::checkPassword(string pw) {
+	pw = toHex(SHF(pw));
+	return (Password.compare(pw) == 0);
+}
+
