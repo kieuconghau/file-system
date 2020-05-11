@@ -9,7 +9,7 @@ void Volume::create(string const& volumeFilePath)
 {
 	this->Path = volumeFilePath;
 
-	fstream file(this->Path);
+	fstream file(this->Path, ios_base::out);
 	if (file.is_open()) {
 		this->VolumeInfo.write(file);
 	}
@@ -51,7 +51,7 @@ bool Volume::isVolumeFile(string const& volumeFilePath)
 	bool isVF = false;
 	this->Path = volumeFilePath;
 
-	fstream file(this->Path);
+	fstream file(this->Path, ios_base::in);
 	if (file.is_open()) {
 		this->seekToHeadOfVolumeInfo(file);
 		this->VolumeInfo.read(file);
