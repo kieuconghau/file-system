@@ -132,18 +132,47 @@ void GUI::reset() {
     line = 0;
 }
 
+string GUI::HidePassword() {
+    string input;
+    char temp;
+    while (true) {
+        temp = _getch();
+        if (temp == '\r') {
+            break;
+        }
+        else if (input.length() > 0 && temp == 8) {
+            input.pop_back();
+            std::cout << "\b \b";
+        }
+        else if (input.length() == 0 && temp == 8) {
+            continue;
+        }
+        else {
+            std::cout << temp;
+            Sleep(50);
+            std::cout << "\b*";
+            input.push_back(temp);
+        }
+    }
+    return input;
+}
+
 string GUI::EnterPassword() {
     string pw, repw;
+
     while (true) {
-        cout << "Password:\t"; cin >> pw;
-        cout << "Re-enter:\t"; cin >> repw;
+
+        cout << "Password:  ";      pw   = HidePassword();      cout << endl;
+        cout << "Re-enter:  ";      repw = HidePassword();      cout << endl;
 
         if (pw.compare(repw) == 0) {
             break;
         }
         else {
             clrscr();
-            cout << "Error: Password is not the same." << endl;
+            setColor(4, 0);
+            cout << "Error: Password is not the same. " << endl;
+            setColor(15, 0);
         }
     }
     return pw;
@@ -170,8 +199,10 @@ void GUI::EnterFolder(Entry* parent, bool &back) {
         
         if (f->checkPassword(pw)) Navigation(f);
         else {
-            cout << "Error: Invalid password." << endl;
+            setColor(4, 0);
+            cout << "Error: Invalid password. Access folder denied. ";
             system("pause");
+            setColor(15, 0);
         }
     }
     else {
@@ -190,8 +221,10 @@ void GUI::SetPassword(Entry *f) {
     if (f->isLocked()) {
         if (f->checkPassword(pw)) f->resetPassword();
         else {
-            cout << "Error: Invalid password.";
+            setColor(4, 0);
+            cout << "Error: Invalid password. Reset pasword denied. ";
             system("pause");
+            setColor(15, 0);
         }
     }
     else {

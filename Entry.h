@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include "Console.h"
+#include "SHA256.h"
 using namespace std;
 
 class Entry
@@ -26,6 +27,7 @@ public:
 
 	void write(ofstream& file) const;
 
+	/* ============== BUU WRITE THIS ============== */
 	virtual void display(bool selected);
 	virtual void show(int selected) {};
 	virtual int getListSize() { return 0; };
@@ -33,6 +35,7 @@ public:
 	void setPassword(string pw);
 	void resetPassword();
 	bool checkPassword(string pw);
+	/* ============== BUU WRITE THIS ============== */
 
 private:
 	void splitPath();

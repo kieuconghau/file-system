@@ -65,7 +65,6 @@ void sleep(int x) {
 }
 
 unsigned int SHF(string input) {
-    unsigned int Init = 124564352;
     unsigned int hashcode = 5674356;
     unsigned int hash;
 

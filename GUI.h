@@ -22,6 +22,7 @@ public:
 	void Navigation(Entry* f);
 	void reset();
 	void clearBackground();
+	string HidePassword();
 	string EnterPassword();
 	void SetPassword(Entry* f);
 	void EnterFolder(Entry* parent, bool &back);

@@ -12,6 +12,8 @@ public:
 	Entry* findParent(vector<string>& ancestorNameList) const;
 	void add(Entry const& entry);
 	
+	/* ============== BUU WRITE THIS ============== */
 	void display(bool selected);
+	/* ============== BUU WRITE THIS ============== */
 };
 

@@ -13,11 +13,13 @@ public:
 	Entry* findParent(vector<string>& ancestorNameList) const;
 	void add(Entry const& tempEntry);
 
+	/* ============== BUU WRITE THIS ============== */
 	void display(bool selected);
 	void displayParent(bool selected);
 	void show(int selected);
 	int getListSize() { return EntryList.size(); };
 	Entry* getEntryInList(int i) { return EntryList[i]; };
+	/* ============== BUU WRITE THIS ============== */
 
 private:
 	vector<Entry*>	EntryList;

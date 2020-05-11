@@ -144,7 +144,8 @@ void Entry::display(bool selected) {
 }
 
 void Entry::setPassword(string pw) {
-	this->Password = toHex(SHF(pw));
+	SHA256 sha256;
+	this->Password = sha256(pw);
 	this->PasswordLen = Password.length();
 }
 
@@ -154,7 +155,7 @@ void Entry::resetPassword() {
 }
 
 bool Entry::checkPassword(string pw) {
-	pw = toHex(SHF(pw));
-	return (Password.compare(pw) == 0);
+	SHA256 sha256;
+	return (Password.compare(sha256(pw)) == 0);
 }
 
