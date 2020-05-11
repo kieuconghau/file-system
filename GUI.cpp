@@ -10,70 +10,123 @@ void GUI::setWindows(int height, int width) {
 
 void GUI::updateMenu(Entry* f) {
     clrscr();
-    setColor(0, 15);
+    
+    setColor(0, 10);
+    cout << " Path ";
+    
+    setColor(10, 0);
+    cout <<" "<< f->getPath(); printSpace(123 - f->getPath().size() - 7);
+
+    setColor(0, 7);
     cout << " Name"; printSpace(42); cout << " | "; printSpace(16); cout << "Size | Type"; printSpace(6); cout << " | Modified"; printSpace(16); cout << " |  Password " << endl;
     setColor(15, 0);
 
     f->show(line);
 }
 
+/*
+   Show list of files/folders in this volume.
+   Press hotkeys to implement some funtions:
+   - Import:				I
+   - Export:				E
+   - Delete:				D
+   - Set/Remove Password:	P
+   - Move down:			    Down
+   - Move up:				Up
+   - Open a folder:		    Enter
+   - Back:					Backspace
+   - Exit:					Escape
+*/
+
 void GUI::Navigation(Entry* f) {
-    char x;
+    // Check if f is nullptr
+    if (!f) return;
+
+    char x = 0;
     bool back = false;
 
     // Ridiculous error fix
-    gotoXY(0, line + 1);
-    setColor(0, 0); printSpace(123);
+    clearBackground();
 
     // Reset line
-    line = 0;
+    reset();
     updateMenu(f);
 
     while (true) {
-        if (_kbhit) {
-            x = _getch();
-            switch (x) {
-            case 13: // enter
-            {
+        
+        if (_kbhit()) {
+            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+            // ============= ENTER =============
+            if (GetKeyState(0x0D) & 0x8000) {
                 if (line != 0) {
                     if (f->getEntryInList(line - 1)->isFolder())
                         Navigation(f->getEntryInList(line - 1));
                 }
-                else back = true;
-
-                break;
+                else {
+                    back = true;
+                    reset();
+                }
             }
-            case 72: // up
-            {
+
+            // ============= UP =============
+            if (GetKeyState(VK_UP) & 0x8000) {
                 if (line == 0) {
                     line = f->getListSize();
                 }
                 else line--;
                 line %= f->getListSize() + 1;
-                break;
             }
-            case 80: // down
-            {
+
+            // ============= DOWN =============
+            if (GetKeyState(VK_DOWN) & 0x8000) {
                 line++;
                 line %= f->getListSize() + 1;
-                break;
             }
-            case 8:
-            {
-                back = true;
-            }
-            case 75: //left
-            {}
-            case 77: // right
-            {}
 
+            // ============= BACK =============
+            if (GetKeyState(0x08) & 0x8000) {
+                back = true;
+                reset();
+                sleep(50);
             }
-            updateMenu(f);
+
+            // ============= EXIT =============
+            if (GetKeyState(0x1B) & 0x8000) {
+                esc = true;
+            }
+
+
+            // Refresh menu
+            if (!esc) {
+                updateMenu(f);
+            }
         }
-        if (back) break;
+        
+
+        if (back||esc) break;
     }
 }
 
-void GUI::Function() {
+void GUI::clearBackground() {
+    setColor(0, 0);
 
+    printSpace(123); cout << endl;
+    printSpace(123);
+    gotoXY(0, line + 2);
+    printSpace(123); 
+
+    setColor(15, 0);
+}
+
+void GUI::reset() {
+    line = 0;
+}
+
+void GUI::Function() {
+    
+}
+
+void GUI::sleep(int x) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
 }
