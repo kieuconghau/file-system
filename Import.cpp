@@ -8,32 +8,27 @@
 // [Data of old files] - [Data of the new file(s)] - [Entries of old files]
 // - [Entry (or entries) of the new file(s)] - [Volume Info Area]
 
-// There are 4 steps to import a new file (or new files) to a volume:
+// There are 3 steps to import a new file (or new files) to a volume:
 // * Step 1: Store the info and data of the new file(s) into RAM.
 // * Step 2: Temporarily store the content of the current
 // Entry Table - which is containing entries of old files,
 // and Volume Info Area of the volume into some buffer
 // to move them later on.
-// * Step 3: In the volume, write a bundle of
+// * Step 3: In the volume, overwrite the content
+// from the end of [Data of old files] to the end of volume
+// by some new content. Those new content is a bundle of:
 // "[Data of the new file(s)]
 // - [Entries of old files] (which is the content of the Entry Table
 // stored earlier)
 // - [Entry (or entries) of the new file(s)] (consisting of
 // the new file's (or new files') info)
 // - [Volume Info Area]"
-// after the [Data of old files] (see the comparison above if you don't
-// understand).
-// * Step 4: Update the info of the volume in Volume Info Area
-// if necessary.
+// (see the comparison above if you don't understand).
+// During the process of writing the bundle, we'll also update the info
+// of the volume in Volume Info Area.
 
-FileInfo GetFileInfo(_WIN32_FIND_DATAA ffd) {
-	FileInfo file_info{ 0, 0 };
-
-	return file_info;
-}
-
-FileEntry ConvertFileInfoToEntry(FileInfo file_info) {
-	FileEntry file_entry{ false, 0, NULL, 0, NULL };
+FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd) {
+	FileEntry file_entry{ {NULL, 0}, false, 0, NULL };
 
 	return file_entry;
 }
@@ -58,7 +53,7 @@ void Import(Volume volume, string new_file_path) {
 	vector<FileEntry> file_entry_vector;
 
 	FileEntry file_entry;
-	_WIN32_FIND_DATAA ffd;	// Data found using WinAPI finding function
+	_WIN32_FIND_DATAA ffd;	// Data found using WinAPI finding function.
 
 	HANDLE hFile = FindFirstFileA(new_file_path.c_str(), &ffd);
 	if (hFile == INVALID_HANDLE_VALUE) {
@@ -66,10 +61,10 @@ void Import(Volume volume, string new_file_path) {
 		return;
 	}
 
-	file_entry = ConvertFileInfoToEntry(GetFileInfo(ffd));
+	file_entry = GetFileInfoAndConvertToEntry(ffd);
 	file_entry_vector.push_back(file_entry);
 
-	// If the current file is actually a folder
+	// If the current file is actually a folder.
 	if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
 		queue<string> file_name_queue;
 		string file_name;
@@ -77,21 +72,29 @@ void Import(Volume volume, string new_file_path) {
 		file_name_queue.push(new_file_path);
 
 		while (file_name_queue.empty() == false) {
+
 			file_name = file_name_queue.front() + "\\*";
+			file_name_queue.pop();
+
 			hFile = FindFirstFileA(file_name.c_str(), &ffd);
+
+			// If FindFirstFileA func can't find any file
+			// (in other words, this "directory tree" has
+			// just an empty folder at the root).
+			if (hFile == INVALID_HANDLE_VALUE) continue;
+
 			do {
 
-				file_entry = ConvertFileInfoToEntry(GetFileInfo(ffd));
+				file_entry = GetFileInfoAndConvertToEntry(ffd);
 				file_entry_vector.push_back(file_entry);
 
-				// If the current file is a folder
+				// If the current file is a folder.
 				if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
 					file_name_queue.push(ffd.cFileName);
 				}
 
 			} while (FindNextFileA(hFile, &ffd) != 0);
 
-			file_name_queue.pop();
 		}
 	}
 
@@ -103,20 +106,25 @@ void Import(Volume volume, string new_file_path) {
 	// of files and folders in the directory tree we've just
 	// finished traversing.
 	// (Again, if we inputted in a normal file (not a folder)
-	// then we'll just get the data of that file only)
+	// then we'll just get the data of that file only.)
 
 	vector<FileData> file_data_vector;
 
 	fstream file_stream;
 
 	for (size_t i = 0; i < file_entry_vector.size(); i++) {
-		if (file_entry_vector[i].is_entry_of_folder == true) {
 
-			file_stream.open(file_entry_vector[i].file_name, ios::binary);
+		// We only get the data of the files which are not folders.
+		if (file_entry_vector[i].is_entry_of_folder == false) {
+
+			file_stream.open(file_entry_vector[i].file_info.file_name,
+				ios::binary);
 			if (file_stream.is_open() == false) continue;
 
 			FileData file_data;
-			file_data.file_size = file_entry_vector[i].file_size;
+			file_data.file_size =
+				file_entry_vector[i].file_info.file_size;
+
 			file_data.data = new char[file_data.file_size];
 
 			file_stream.read(file_data.data, file_data.file_size);
@@ -137,13 +145,25 @@ void Import(Volume volume, string new_file_path) {
 	// they'll be moved to some different places to make space
 	// for the info and data of the new file(s).
 
-	// Set volume stream's pointer
-	// to the beginning of Entry Table.
-	volume.stream.seekg(volume.entry_table_offset);
+	char* entry_table = NULL;
 
-	// Store the content of Entry Table into a char array.
-	char* entry_table = new char[volume.entry_table_size];
-	volume.stream.read(entry_table, volume.entry_table_size);
+	// If the volume is empty (which means there's no Entry Table),
+	// we don't have to do the step of moving Entry Table.
+
+	if (volume.is_empty == false) {
+
+		// Set volume stream's pointer
+		// to the beginning of Entry Table.
+		volume.stream.seekg(volume.entry_table_offset);
+
+		// Store the content of Entry Table into a char array.
+		entry_table = new char[volume.entry_table_size];
+		volume.stream.read(entry_table, volume.entry_table_size);
+
+	}
+	else {
+		volume.stream.seekg(volume.volume_info_area_offset);
+	}
 
 	// Now the stream's pointer is at the beginning of Volume Info Area.
 	// Store the content of Volume Info Area into a char array.
@@ -152,9 +172,19 @@ void Import(Volume volume, string new_file_path) {
 
 	// Step 3:
 
-	// Set volume stream's pointer
-	// to the beginning of Entry Table again.
-	volume.stream.seekp(volume.entry_table_offset);
+	if (volume.is_empty == false) {	// If the volume is not empty.
+
+		// Set volume stream's pointer
+		// to the beginning of Entry Table.
+		volume.stream.seekp(volume.entry_table_offset);
+	}
+	else {	// If the volume is empty
+
+		// Set volume stream's pointer
+		// to the beginning of Volume Info Area
+		// (which is also the beginning of the volume).
+		volume.stream.seekp(volume.volume_info_area_offset);
+	}
 
 	// Write a bundle of
 	// "[Data of the new file(s)]
@@ -163,35 +193,53 @@ void Import(Volume volume, string new_file_path) {
 	// - [Entry (or entries) of the new file(s)] (consisting of
 	// the new file's (or new files') info)
 	// - [Volume Info Area]"
+	// and update the volume's info in the Volume Info Area.
+
+	// Write data of the new file(s).
 	for (size_t i = 0; i < file_data_vector.size(); i++) {
 		volume.stream.write(file_data_vector[i].data,
 			file_data_vector[i].file_size);
 	}
+
+	// Update the offset of Entry Table.
+	volume.entry_table_offset = volume.stream.tellp();
+
+	// Write entries of the old files (which is the old
+	// Entry Table).
 	volume.stream.write(entry_table, volume.entry_table_size);
+
+	// Write entry (or entries) of the new file(s).
 	for (size_t i = 0; i < file_data_vector.size(); i++) {
 		volume.stream.write(file_entry_vector[i].entry,
 			file_entry_vector[i].entry_size);
 	}
+
+	// Update the size of Entry Table.
+	volume.entry_table_size = (int)volume.stream.tellp()
+		- volume.entry_table_offset;
+
+	// Write the Volume Info Area
 	volume.stream.write(volume_info_area, volume.volume_info_area_size);
-
-	// Step 4:
-
-	// ...
-	// (unsure about the content of Volume Info Area
-	// so can't implement yet)
 
 	// Extra step:
 	// Deallocate all the memory we've borrowed from heap memory.
 
 	for (size_t i = 0; i < file_data_vector.size(); i++) {
-		delete[] file_data_vector[i].data;
+		if (file_data_vector[i].data != NULL) {
+			delete[] file_data_vector[i].data;
+		}
 	}
 
 	for (size_t i = 0; i < file_entry_vector.size(); i++) {
-		delete[] file_entry_vector[i].entry;
+		if (file_entry_vector[i].entry != NULL) {
+			delete[] file_entry_vector[i].entry;
+		}	
 	}
 
-	delete[] entry_table;
+	if (entry_table != NULL) {
+		delete[] entry_table;
+	}
+
 	delete[] volume_info_area;
 
 }

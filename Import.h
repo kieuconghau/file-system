@@ -10,6 +10,9 @@ using namespace std;
 // Placeholder struct
 struct Volume {
 	fstream stream;
+	bool is_empty;	// An empty volume has no data in Data Area
+					// and no Entry Table, and has only
+					// the Volume Info Area.
 	int volume_info_area_offset;
 	int volume_info_area_size;
 	int entry_table_offset;
@@ -18,25 +21,23 @@ struct Volume {
 
 // Placeholder struct
 struct FileInfo {
-	int entry_size;
+	char* file_name = NULL;
 	int file_size;
 };
 
 // Placeholder struct
 struct FileEntry {
+	FileInfo file_info;
 	bool is_entry_of_folder;
 	int entry_size;
-	char* file_name;
-	int file_size;
-	char* entry;
+	char* entry = NULL;
 };
 
 // Placeholder struct
 struct FileData {
 	int file_size;
-	char* data;
+	char* data = NULL;
 };
 
-FileInfo GetFileInfo(_WIN32_FIND_DATAA ffd);
-FileEntry ConvertFileInfoToEntry(FileInfo file_info);
+FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd);
 void Import(Volume volume, string new_file_path);
