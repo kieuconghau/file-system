@@ -5,6 +5,6 @@ int main() {
 
 	if (vol.isVolumeFile("test"))
 		vol.open("test");
-
+	
 	return 0;
 }

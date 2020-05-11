@@ -6,15 +6,15 @@
 class Folder : public Entry
 {
 public:
-	Folder();
-	Folder(Entry const& entry, Folder* parent);
+	Folder() = default;
+	Folder(Entry const& entry);
 	~Folder();
 
-	Entry* findParent(vector<string>& ancestorNameList) const;
-	Entry* add(Entry const& tempEntry);
+	Entry* findParent(vector<string>& ancestorNameList) const override;
+	Entry* add(Entry const& tempEntry) override;
+	void del() override;
 
 private:
-	Folder*			Parent;
 	vector<Entry*>	EntryList;
 };
 

@@ -9,7 +9,8 @@ public:
 	File(Entry const& entry);
 	~File() = default;
 
-	Entry* findParent(vector<string>& ancestorNameList) const;
-	Entry* add(Entry const& entry);
+	Entry* findParent(vector<string>& ancestorNameList) const override;
+	Entry* add(Entry const& entry) override;
+	void del() override;
 };
 

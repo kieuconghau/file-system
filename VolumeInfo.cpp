@@ -2,38 +2,44 @@
 
 VolumeInfo::VolumeInfo()
 {
-	this->Signature			= 0x024E4854;
+	this->Signature			= 0x024E4854;	// "THN "
 	this->SizeEntryTable	= 0;
 	this->OffsetEntryTable	= 0;
 }
 
-void VolumeInfo::write(ofstream& file) const
+void VolumeInfo::write(fstream& file) const
 {
 	file.write((char*)&this->Signature, sizeof(this->Signature));
 	file.write((char*)&this->SizeEntryTable, sizeof(this->SizeEntryTable));
 	file.write((char*)&this->OffsetEntryTable, sizeof(this->OffsetEntryTable));
 }
 
-void VolumeInfo::read(ifstream& file) const
+void VolumeInfo::read(fstream& file) const
 {
 	file.read((char*)&this->Signature, sizeof(this->Signature));
 	file.read((char*)&this->SizeEntryTable, sizeof(this->SizeEntryTable));
 	file.read((char*)&this->OffsetEntryTable, sizeof(this->OffsetEntryTable));
 }
 
-bool VolumeInfo::checkSignature(ifstream& file) const
+bool VolumeInfo::checkSignature(fstream& file) const
 {
 	return this->Signature == 0x024E4854;
 }
 
-void VolumeInfo::seekToHeadOfEntryTable(ifstream& file) const
+void VolumeInfo::seekToHeadOfEntryTable(fstream& file) const
 {
 	file.clear();
 	file.seekg(this->OffsetEntryTable);
 }
 
-bool VolumeInfo::isEndOfEntryTable(ifstream& file) const
+bool VolumeInfo::isEndOfEntryTable(fstream& file) const
 {
 	return file.tellg() == this->OffsetEntryTable + this->SizeEntryTable;
+}
+
+void VolumeInfo::updateAfterDel(Entry const* entry)
+{
+	this->SizeEntryTable -= entry->getSize();
+	this->OffsetEntryTable -= entry->getSizeData();
 }
 

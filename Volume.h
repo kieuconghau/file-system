@@ -13,9 +13,11 @@ public:
 	void open(string const& volumeFilePath);
 	bool isVolumeFile(string const& volumeFilePath);
 
+	void del(Entry* entry, Entry const* parent);
+
 private:
-	void seekToHeadOfVolumeInfo(ifstream& file) const;
-	void seekToHeadOfEntryTable(ifstream& file) const;
+	void seekToHeadOfVolumeInfo(fstream& file) const;
+	void seekToHeadOfEntryTable(fstream& file) const;
 
 private:
 	string		Path;

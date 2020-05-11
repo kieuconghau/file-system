@@ -3,18 +3,22 @@
 #include <fstream>
 using namespace std;
 
+#include "Entry.h"
+
 class VolumeInfo
 {
 public:
 	VolumeInfo();
 	~VolumeInfo() = default;
 
-	void write(ofstream& file) const;
-	void read(ifstream& file) const;
-	bool checkSignature(ifstream& file) const;
+	void write(fstream& file) const;
+	void read(fstream& file) const;
+	bool checkSignature(fstream& file) const;
 	
-	void seekToHeadOfEntryTable(ifstream& file) const;
-	bool isEndOfEntryTable(ifstream& file) const;
+	void seekToHeadOfEntryTable(fstream& file) const;
+	bool isEndOfEntryTable(fstream& file) const;
+
+	void updateAfterDel(Entry const* entry);
 
 private:
 	/*==========*/

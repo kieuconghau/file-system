@@ -10,7 +10,10 @@ public:
 	EntryTable();
 	~EntryTable();
 
-	void read(ifstream& file, VolumeInfo const& volumeInfo);
+	void read(fstream& file, VolumeInfo const& volumeInfo);
+
+	void updateAfterDel(Entry const* entry);
+	void write(fstream& file) const;
 
 private:
 	Entry* Root;

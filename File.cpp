@@ -8,3 +8,8 @@ Entry* File::findParent(vector<string>& ancestorNameList) const
 }
 
 Entry* File::add(Entry const& entry) { return nullptr; }
+
+void File::del()
+{
+
+}

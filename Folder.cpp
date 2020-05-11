@@ -1,21 +1,12 @@
 #include "Folder.h"
 
-Folder::Folder()
-{
-	this->Parent = nullptr;
-}
-
-Folder::Folder(Entry const& entry, Folder* parent) : Entry(entry)
-{
-	this->Parent = parent;
-}
+Folder::Folder(Entry const& entry) : Entry(entry) {}
 
 Folder::~Folder()
 {
-	this->Parent = nullptr;
-
 	for (Entry* entry : this->EntryList) {
 		delete entry;
+		entry = nullptr;
 	}
 }
 
@@ -43,7 +34,7 @@ Entry* Folder::add(Entry const& tempEntry) {
 	Entry* entry;
 
 	if (tempEntry.isFolder()) {
-		entry = new Folder(tempEntry, this);
+		entry = new Folder(tempEntry);
 	}
 	else {
 		entry = new File(tempEntry);
@@ -52,4 +43,9 @@ Entry* Folder::add(Entry const& tempEntry) {
 	this->EntryList.push_back(entry);
 
 	return entry;
+}
+
+void Folder::del()
+{
+
 }

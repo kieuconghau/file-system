@@ -4,7 +4,7 @@ Entry::Entry()
 {
 	this->ModifiedTime	= 0;
 	this->ModifiedDate	= 0;
-	this->Size			= 0;
+	this->SizeData		= 0;
 	this->PathLen		= 0;
 	this->PasswordLen	= 0;
 	this->OffsetData	= 0;
@@ -18,11 +18,11 @@ Entry::Entry(Entry const& entry)
 	*this = entry;
 }
 
-void Entry::read(ifstream& file)
+void Entry::read(fstream& file)
 {
 	file.read((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
 	file.read((char*)&this->ModifiedDate, sizeof(this->ModifiedDate));
-	file.read((char*)&this->Size, sizeof(this->Size));
+	file.read((char*)&this->SizeData, sizeof(this->SizeData));
 	file.read((char*)&this->PathLen, sizeof(this->PathLen));
 	file.read((char*)&this->PasswordLen, sizeof(this->PasswordLen));
 	file.read((char*)&this->OffsetData, sizeof(this->OffsetData));
@@ -36,6 +36,18 @@ void Entry::read(ifstream& file)
 	this->splitPath();
 }
 
+void Entry::write(fstream& file) const
+{
+	file.write((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
+	file.write((char*)&this->ModifiedDate, sizeof(this->ModifiedDate));
+	file.write((char*)&this->SizeData, sizeof(this->SizeData));
+	file.write((char*)&this->PathLen, sizeof(this->PathLen));
+	file.write((char*)&this->PasswordLen, sizeof(this->PasswordLen));
+	file.write((char*)&this->OffsetData, sizeof(this->OffsetData));
+	file.write((char*)this->Path.c_str(), this->PathLen);
+	file.write((char*)this->Password.c_str(), this->PasswordLen);
+}
+
 bool Entry::isFolder() const
 {
 	return Path.back() == SLASH;
@@ -43,7 +55,7 @@ bool Entry::isFolder() const
 
 bool Entry::isLocked() const
 {
-	return this->PathLen != 0;
+	return this->PasswordLen != 0;
 }
 
 bool Entry::hasName(string const& name) const
@@ -51,14 +63,22 @@ bool Entry::hasName(string const& name) const
 	return name == this->Name;
 }
 
-vector<string> Entry::getAncestorNameList() const
-{
-	return this->AncestorNameList;
-}
-
 string Entry::getPath() const
 {
 	return this->Path;
+}
+
+uint32_t Entry::getSizeData() const
+{
+	return this->SizeData;
+}
+
+uint32_t Entry::getSize() const
+{
+	return sizeof(this->ModifiedTime) + sizeof(this->ModifiedDate)
+		+ sizeof(this->SizeData) + sizeof(this->PathLen)
+		+ sizeof(this->PasswordLen) + sizeof(this->OffsetData)
+		+ this->Path.length() + this->Password.length();
 }
 
 Entry* Entry::findParent(vector<string>& ancestorNameList) const
@@ -68,10 +88,18 @@ Entry* Entry::findParent(vector<string>& ancestorNameList) const
 
 Entry* Entry::add(Entry const& entry) { return nullptr; }
 
-void Entry::seekToOffsetData(ofstream& file) const
+void Entry::del() {}
+
+void Entry::seekToHeadOfData(fstream& file) const
 {
 	file.clear();
-	file.seekp(this->OffsetData);
+	file.seekg(this->OffsetData);
+}
+
+void Entry::seekToEndOfData(fstream& file) const
+{
+	file.clear();
+	file.seekg((uint64_t)this->OffsetData + (uint64_t)this->SizeData);
 }
 
 void Entry::splitPath()
