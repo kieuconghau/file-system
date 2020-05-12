@@ -27,13 +27,90 @@
 // During the process of writing the bundle, we'll also update the info
 // of the volume in Volume Info Area.
 
-FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd) {
-	FileEntry file_entry{ {NULL, 0}, false, 0, NULL };
+FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd,
+	string file_path, string file_name_in_volume,
+	uint32_t &insert_pos) {
+	FileInfo file_info;
+
+	// File last modification date and time.
+	FileTimeToDosDateTime(&ffd.ftLastWriteTime, &file_info.modified_date,
+		&file_info.modified_time);
+
+	// File size.
+	// If file size is not greater than (2^32 - 1)
+	// (which means nFileSizeHigh == 0), get
+	// file size in nFileSizeLow and store it.
+	if (ffd.nFileSizeHigh == 0) {
+		file_info.file_size = ffd.nFileSizeLow;
+	}
+	// Else, just store file size as (2^32 - 1)
+	else {
+		file_info.file_size = UINT32_MAX;
+	}
+
+	// File name length.
+	file_info.file_name_length = file_name_in_volume.length();
+
+	// File password length.
+	file_info.file_password_length = 0;
+
+	// File offset.
+	file_info.file_offset = insert_pos;
+	insert_pos += file_info.file_size;
+
+	// File name.
+	file_info.file_name = new char[file_info.file_name_length + 1];
+	strcpy(file_info.file_name, file_name_in_volume.c_str());
+
+	FileEntry file_entry;
+
+	file_entry.file_info = file_info;
+
+	file_entry.file_path = file_path;
+
+	if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+		file_entry.is_entry_of_folder = true;
+	}
+	else {
+		file_entry.is_entry_of_folder = false;
+	}
+
+	file_entry.entry_size = sizeof(file_info.modified_time)
+		+ sizeof(file_info.modified_date)
+		+ sizeof(file_info.file_size)
+		+ sizeof(file_info.file_name_length)
+		+ sizeof(file_info.file_password_length)
+		+ sizeof(file_info.file_offset)
+		+ file_info.file_name_length;
+
+	file_entry.entry = new char[file_entry.entry_size];
+
+	char* p = file_entry.entry;
+
+	strcpy(p, (char*)file_info.modified_time);
+
+	p += sizeof(file_info.modified_time);
+	strcpy(p, (char*)file_info.modified_date);
+
+	p += sizeof(file_info.modified_date);
+	strcpy(p, (char*)file_info.file_size);
+
+	p += sizeof(file_info.file_size);
+	strcpy(p, (char*)file_info.file_name_length);
+
+	p += sizeof(file_info.file_name_length);
+	strcpy(p, (char*)file_info.file_password_length);
+
+	p += sizeof(file_info.file_password_length);
+	strcpy(p, (char*)file_info.file_offset);
+
+	p += sizeof(file_info.file_offset);
+	strncpy(p, file_info.file_name, file_info.file_name_length);
 
 	return file_entry;
 }
 
-void Import(Volume volume, string new_file_path) {
+void Import(Volume &volume, string new_file_path) {
 
 	// Step 1: We'll get and store the info and data of the new file(s)
 	// into our program.
@@ -55,28 +132,53 @@ void Import(Volume volume, string new_file_path) {
 	FileEntry file_entry;
 	_WIN32_FIND_DATAA ffd;	// Data found using WinAPI finding function.
 
+	// We'll use a variable to keep track of the position
+	// where data of a new file is inserted. At first its value
+	// will be the original offset of the Entry Table (which is also
+	// the end position of the Data Area). Every time a file
+	// is found and an entry is created, the value of this variable
+	// will be used to fill in the "file offset" field of the entry
+	// and then be updated.
+
+	uint32_t insert_pos;
+	if (volume.is_empty == false) {
+		insert_pos = volume.entry_table_offset;
+	}
+	else {
+		insert_pos = 0;
+	}
+
 	HANDLE hFile = FindFirstFileA(new_file_path.c_str(), &ffd);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		cout << "Failed to find the file." << endl;
 		return;
 	}
 
-	file_entry = GetFileInfoAndConvertToEntry(ffd);
-	file_entry_vector.push_back(file_entry);
-
 	// If the current file is actually a folder.
 	if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
-		queue<string> file_name_queue;
-		string file_name;
 
-		file_name_queue.push(new_file_path);
+		queue<string> folder_path_queue;
 
-		while (file_name_queue.empty() == false) {
+		const string root_folder_path = new_file_path;
+		const string root_folder_name = ffd.cFileName;
+		string parent_folder_path;
+		string file_name_in_volume;
 
-			file_name = file_name_queue.front() + "\\*";
-			file_name_queue.pop();
+		file_name_in_volume = root_folder_name;
+		file_name_in_volume += "\\";
 
-			hFile = FindFirstFileA(file_name.c_str(), &ffd);
+		file_entry = GetFileInfoAndConvertToEntry(ffd,
+			root_folder_path, file_name_in_volume, insert_pos);
+		file_entry_vector.push_back(file_entry);
+
+		folder_path_queue.push(root_folder_path);
+
+		while (folder_path_queue.empty() == false) {
+
+			parent_folder_path = folder_path_queue.front() + "\\*";
+			folder_path_queue.pop();
+
+			hFile = FindFirstFileA(parent_folder_path.c_str(), &ffd);
 
 			// If FindFirstFileA func can't find any file
 			// (in other words, this "directory tree" has
@@ -85,17 +187,41 @@ void Import(Volume volume, string new_file_path) {
 
 			do {
 
-				file_entry = GetFileInfoAndConvertToEntry(ffd);
+				string file_path = parent_folder_path.substr(
+					0, parent_folder_path.length() - 1) + ffd.cFileName;
+
+				file_name_in_volume =
+					parent_folder_path.substr(
+						root_folder_path.length() - root_folder_name.length(),
+						parent_folder_path.length()
+						- root_folder_path.length()
+						+ root_folder_name.length()
+						- 1)
+					+ ffd.cFileName;
+
+				file_entry = GetFileInfoAndConvertToEntry(ffd,
+					file_path, file_name_in_volume, insert_pos);
 				file_entry_vector.push_back(file_entry);
 
 				// If the current file is a folder.
 				if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
-					file_name_queue.push(ffd.cFileName);
+					// Get the parent folder's path, remove the asterisk
+					// at the tail, append the current folder's name,
+					// and push the whole path into the queue.
+					folder_path_queue.push(
+						parent_folder_path.substr(0,
+							parent_folder_path.length() - 1)
+						+ ffd.cFileName);
 				}
 
 			} while (FindNextFileA(hFile, &ffd) != 0);
 
 		}
+	}
+	else {
+		file_entry = GetFileInfoAndConvertToEntry(ffd, new_file_path,
+			ffd.cFileName, insert_pos);
+		file_entry_vector.push_back(file_entry);
 	}
 
 	FindClose(hFile);
@@ -117,7 +243,7 @@ void Import(Volume volume, string new_file_path) {
 		// We only get the data of the files which are not folders.
 		if (file_entry_vector[i].is_entry_of_folder == false) {
 
-			file_stream.open(file_entry_vector[i].file_info.file_name,
+			file_stream.open(file_entry_vector[i].file_path,
 				ios::binary);
 			if (file_stream.is_open() == false) continue;
 
@@ -231,6 +357,9 @@ void Import(Volume volume, string new_file_path) {
 	}
 
 	for (size_t i = 0; i < file_entry_vector.size(); i++) {
+		if (file_entry_vector[i].file_info.file_name != NULL) {
+			delete[] file_entry_vector[i].file_info.file_name;
+		}
 		if (file_entry_vector[i].entry != NULL) {
 			delete[] file_entry_vector[i].entry;
 		}	

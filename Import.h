@@ -21,13 +21,20 @@ struct Volume {
 
 // Placeholder struct
 struct FileInfo {
+	uint16_t modified_time;
+	uint16_t modified_date;
+	uint32_t file_size;
+	uint16_t file_name_length;
+	uint16_t file_password_length;
+	uint32_t file_offset;
 	char* file_name = NULL;
-	int file_size;
+	char* file_password = NULL;
 };
 
 // Placeholder struct
 struct FileEntry {
 	FileInfo file_info;
+	string file_path;
 	bool is_entry_of_folder;
 	int entry_size;
 	char* entry = NULL;
@@ -39,5 +46,7 @@ struct FileData {
 	char* data = NULL;
 };
 
-FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd);
-void Import(Volume volume, string new_file_path);
+FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd,
+	string file_path, string file_name_in_volume,
+	uint32_t &insert_pos);
+void Import(Volume &volume, string new_file_path);
