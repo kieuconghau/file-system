@@ -127,7 +127,9 @@ void Volume::navigate(Entry* f) {
 			if (GetKeyState(0x50) & 0x8000) {
 				while ((GetAsyncKeyState(0x50) & 0x8000)) {};
 
-				this->setPassword(f->getEntryInList(GUI::line - 1));
+				if (GUI::line != 0) {
+					this->setPassword(f->getEntryInList(GUI::line - 1));
+				}
 			}
 
 			// ========== DELETE A FILE/FOLDER ==========
