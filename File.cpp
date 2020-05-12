@@ -2,12 +2,16 @@
 
 File::File(Entry const& entry) : Entry(entry) {}
 
-Entry* File::findParent(vector<string>& ancestorNameList) const
-{
-	return nullptr;
-}
+File::~File() {}
 
-void File::add(Entry const& entry) {}
+Entry* File::add(Entry const& entry) { return nullptr; }
+
+void File::del(Entry* entry) {}
+
+vector<Entry*> File::getSubEntryList() const
+{
+	return vector<Entry*>();
+}
 
 void File::display(bool selected) {
     if (selected) setColor(15, 1);
@@ -20,3 +24,4 @@ void File::display(bool selected) {
     if (selected) setColor(15, 0);
     Entry::display(selected);
 }
+

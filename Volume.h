@@ -3,21 +3,23 @@
 #include "VolumeInfo.h"
 #include "EntryTable.h"
 
+#include <Windows.h>
+
 class Volume
 {
 public:
 	Volume();
-	~Volume() = default;
+	~Volume();
 
 	void create(string const& volumeFilePath);
 	void open(string const& volumeFilePath);
 	bool isVolumeFile(string const& volumeFilePath);
 
-	void addEntry_test(Entry const& entry);
+	void del(Entry* entry, Entry* parent);
 
 private:
-	void seekToHeadOfVolumeInfo(ifstream& file) const;
-	void seekToHeadOfEntryTable(ifstream& file) const;
+	void seekToHeadOfVolumeInfo(fstream& file) const;
+	void seekToHeadOfEntryTable(fstream& file) const;
 
 private:
 	string		Path;

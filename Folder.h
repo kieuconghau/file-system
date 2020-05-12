@@ -6,12 +6,13 @@
 class Folder : public Entry
 {
 public:
-	Folder();
-	Folder(Entry const& entry, Folder* parent);
+	Folder() = default;
+	Folder(Entry const& entry);
 	~Folder();
 
-	Entry* findParent(vector<string>& ancestorNameList) const;
-	void add(Entry const& tempEntry);
+	Entry* add(Entry const& tempEntry) override;
+	void del(Entry* entry) override;
+	vector<Entry*> getSubEntryList() const override;
 
 	/* ============== BUU WRITE THIS ============== */
 	void display(bool selected);
@@ -22,6 +23,6 @@ public:
 	/* ============== BUU WRITE THIS ============== */
 
 private:
-	vector<Entry*>	EntryList;
+	vector<Entry*> EntryList;
 };
 

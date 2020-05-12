@@ -9,11 +9,18 @@ class EntryTable
 public:
 	EntryTable();
 	~EntryTable();
-
-	void read(ifstream& file, VolumeInfo const& volumeInfo) const;
+  
 	void open();
+  
+	void read(fstream& file, VolumeInfo const& volumeInfo);
+	void write(fstream& file) const;
+
+	void add(Entry const& entry);
+	
+	void updateAfterDel(Entry const* entry);
 
 private:
 	Entry* Root;
+	vector<Entry*> EntryList;
 };
 

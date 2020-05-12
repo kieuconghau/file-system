@@ -8,15 +8,18 @@ using namespace std;
 
 class VolumeInfo
 {
-	friend class EntryTable;
 public:
 	VolumeInfo();
-	~VolumeInfo() = default;
+	~VolumeInfo();
 
-	void write(ofstream& file) const;
-	void read(ifstream& file) const;
-	bool checkSignature(ifstream& file) const;
-	void seekToHeadOfEntryTable(ifstream& file) const;
+	void write(fstream& file) const;
+	void read(fstream& file) const;
+	bool checkSignature(fstream& file) const;
+	
+	void seekToHeadOfEntryTable(fstream& file) const;
+	bool isEndOfEntryTable(fstream& file) const;
+
+	void updateAfterDel(Entry const* entry);
 
 	void write(ofstream& file, Entry const& entry);
 
