@@ -237,12 +237,15 @@ void Volume::setPassword(Entry* f)
 	this->writePasswordChange();
 }
 
-void Volume::del(Entry* entry, Entry* parent)
+bool Volume::del(Entry* entry, Entry* parent)
 {
+	bool isTotallyDeleted = true;
+
 	// Step 1: Find and delete all sub-entries of this entry (Recursively)
 	vector<Entry*> subEntryList = entry->getSubEntryList();
 	for (Entry* subEntry : subEntryList) {
 		if (subEntry->isLocked()) {
+			isTotallyDeleted = false;
 			continue;
 		}
 		this->del(subEntry, entry);
@@ -250,7 +253,7 @@ void Volume::del(Entry* entry, Entry* parent)
 
 	// Step 2: Check if this entry still stores sub-entries, if yes, we can not delete this entry.
 	if (entry->getListSize() != 0) {
-		return;
+		return isTotallyDeleted;
 	}
 
 	// Step 3: Delete this entry on File
@@ -306,6 +309,8 @@ void Volume::del(Entry* entry, Entry* parent)
 
 	// Step 4: Delete this entry on RAM
 	parent->del(entry);
+
+	return isTotallyDeleted;
 }
 
 void Volume::resize(size_t const& size)
@@ -349,11 +354,13 @@ void Volume::deleteOnVolume(Entry* f) {
 
 	if (f->isLocked()) {
 		pw = GUI::enterPassword();
+		clrscr();
 
 		if (!f->checkPassword(pw)) {
-			clrscr();
-			setColor(4, 0);
-			cout << "Error: Invalid password. Deletion denied. " << endl;;
+			setColor(12, 0);
+			cout << "Error: Invalid password. Deletion denied. " << endl;
+			cout << endl;
+			setColor(11, 0);
 			system("pause");
 			setColor(15, 0);
 			return;
@@ -361,25 +368,30 @@ void Volume::deleteOnVolume(Entry* f) {
 	}
 
 	string name = f->getName();
-	setColor(14, 0);
-	cout << "Program: Do you want to permanently DELETE " << name << "? [DELETE | else will cancel]" << endl;
-	setColor(15, 0);
-	cout << "Your decision: ";
+	setColor(12, 0);
+	cout << "Program: Do you want to permanently DELETE '" << name << "'? " << endl;
+	cout << endl;
+	cout <<"         Type DELETE to confirm | else it will cancel." << endl;
+	cout << endl;
+	setColor(11, 0);
+	cout << "User:    ";
 	cin >> pw;
+	setColor(15, 0);
 	clrscr();
 
 	if ((pw.compare("DELETE") == 0) || (pw.compare("delete") == 0)) {
-		this->del(f, parent);
-		
-		if (f) {
+	
+		if (!this->del(f, parent)) {
 			setColor(12, 0);
-			cout << "Program: '" << name << "' can not be deleted totally because this folder still stores some files or folders secured with password." << endl;
+			cout << "Program: '" << name << "' can not be deleted totally." << endl;
+			cout << endl;
+			cout<< "         Because this folder still stores some files or folders secured with password." << endl;
 			cout << endl;
 			cout << "         To delete '" << name << "' totally, make sure that all files or folders stored in this folder have no password." << endl;
 		}
 		else {
 			setColor(10, 0);
-			cout << "Program: " << name << " is deleted successfully. " << endl;
+			cout << "Program:  '" << name << "' is deleted successfully. " << endl;
 		}
 		cout << endl;
 		setColor(11, 0);
@@ -389,11 +401,14 @@ void Volume::deleteOnVolume(Entry* f) {
 	}
 	else {
 		setColor(10, 0);
-		cout << "Program: Delete " << name << " is canceled. " << endl;
+		cout << "Program: Delete  '" << name << "' is canceled. " << endl;
+		cout << endl;
+		setColor(11, 0);
 		system("pause");
 		setColor(15, 0);
 	}
 
+	
 }
 
 void Volume::seekToHeadOfVolumeInfo(fstream& file) const

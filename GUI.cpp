@@ -73,3 +73,14 @@ string GUI::enterPassword() {
     return pw;
 }
 
+
+void GUI::printProgress(string content, int color, double percentage) {
+    int val = (int)(percentage * 100);
+    int lpad = (int)(percentage * PBWIDTH);
+    int rpad = PBWIDTH - lpad;
+    printf("[%.*s%*s]",  lpad, PBSTR, rpad, "");
+    cout << endl;
+
+    // \r%3d%%  val,
+    fflush(stdout);
+}

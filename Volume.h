@@ -28,7 +28,7 @@ private:
 	void setPassword(Entry* f);
 	void writePasswordChange();
 	void deleteOnVolume(Entry* f);
-	void del(Entry* entry, Entry* parent);
+	bool del(Entry* entry, Entry* parent);
 
 	void resize(size_t const& size);
 
