@@ -46,6 +46,7 @@ public:
 	void setPassword(string pw);
 	void resetPassword();
 	bool checkPassword(string pw);
+	string getName() const { return this->Name; };
 	/* ============== BUU WRITE THIS ============== */
   
 	void seekToHeadOfData(fstream& file) const;

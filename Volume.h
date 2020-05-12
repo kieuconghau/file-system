@@ -26,6 +26,8 @@ private:
 	void enterFolder(Entry* parent, bool& back);
 
 	void setPassword(Entry* f);
+	void writePasswordChange();
+	void deleteOnVolume(Entry* f);
 	void del(Entry* entry, Entry* parent);
 
 private:

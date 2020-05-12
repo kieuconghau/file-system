@@ -21,8 +21,6 @@ public:
 
 	void updateAfterDel(Entry const* entry);
 
-	void write(ofstream& file, Entry const& entry);
-
 private:
 	/*==========*/
 	uint32_t Signature;

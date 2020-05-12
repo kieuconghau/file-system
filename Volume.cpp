@@ -131,12 +131,10 @@ void Volume::navigate(Entry* f) {
 			}
 
 			// ========== DELETE A FILE/FOLDER ==========
-			if (GetKeyState(0x44) & 0x8000) {
-				while ((GetAsyncKeyState(0x44) & 0x8000)) {};
+			if ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {
+				while ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {};
 
-				if (GUI::line != 0) {
-					this->del(f->getEntryInList(GUI::line - 1), f);
-				}
+				this->deleteOnVolume(f);
 			}
 
 			// Refresh menu
@@ -215,15 +213,19 @@ void Volume::setPassword(Entry* f)
 	if (f->isLocked()) {
 		if (f->checkPassword(pw)) f->resetPassword();
 		else {
+			clrscr();
 			setColor(4, 0);
-			cout << "Error: Invalid password. Reset pasword denied. ";
+			cout << "Error: Invalid password. Reset pasword denied. " << endl;
 			system("pause");
 			setColor(15, 0);
+			return;
 		}
 	}
 	else {
 		f->setPassword(pw);
 	}
+
+	this->writePasswordChange();
 }
 
 void Volume::del(Entry* entry, Entry* parent)
@@ -312,6 +314,55 @@ void Volume::del(Entry* entry, Entry* parent)
 	parent->del(entry);
 }
 
+void Volume::deleteOnVolume(Entry* f) {
+	if (GUI::line == 0) return; // case Parent
+
+	clrscr();
+	GUI::clearBackground();
+
+	string pw;
+
+	Entry* parent = f;
+	f = f->getEntryInList(GUI::line - 1);
+
+	if (f->isLocked()) {
+		pw = GUI::enterPassword();
+
+		if (!f->checkPassword(pw)) {
+			clrscr();
+			setColor(4, 0);
+			cout << "Error: Invalid password. Deletion denied. " << endl;;
+			system("pause");
+			setColor(15, 0);
+			return;
+		}
+	}
+
+	string name = f->getName();
+	setColor(14, 0);
+	cout << "Program: Are you want to permanently DELETE " << name << "? [DELETE | else will cancel]" << endl;
+	setColor(15, 0);
+	cout << "Your decision: ";
+	cin >> pw;
+	clrscr();
+
+	if ((pw.compare("DELETE") == 0) || (pw.compare("delete") == 0)) {
+		this->del(f, parent);
+		setColor(10, 0);
+		cout << "Program: " << name << " is deleted successfully. " << endl;
+		system("pause");
+		setColor(15, 0);
+		GUI::reset();
+	}
+	else {
+		setColor(10, 0);
+		cout << "Program: Delete " << name << " is canceled. " << endl;
+		system("pause");
+		setColor(15, 0);
+	}
+
+}
+
 void Volume::seekToHeadOfVolumeInfo(fstream& file) const
 {
 	file.seekg(0 - (int)sizeof(VolumeInfo), ios_base::end);
@@ -322,3 +373,16 @@ void Volume::seekToHeadOfEntryTable(fstream& file) const
 	this->VolumeInfo.seekToHeadOfEntryTable(file);
 }
 
+void Volume::writePasswordChange() {
+	fstream file(this->Path);
+
+	if (file) {
+		this->seekToHeadOfEntryTable(file);
+		this->EntryTable.write(file);
+		this->VolumeInfo.write(file);
+
+		// resize 
+
+		file.close();
+	}
+}
