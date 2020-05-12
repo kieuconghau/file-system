@@ -120,6 +120,11 @@ uint32_t Entry::getSize() const
 		+ this->Path.length() + this->Password.length();
 }
 
+uint16_t Entry::getPasswordLen() const
+{
+	return this->PasswordLen;
+}
+
 Entry* Entry::add(Entry const& entry) { return nullptr; }
 
 void Entry::write(ofstream& file) const

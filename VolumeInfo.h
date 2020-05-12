@@ -20,6 +20,7 @@ public:
 	bool isEndOfEntryTable(fstream& file) const;
 
 	void updateAfterDel(Entry const* entry);
+	void updateAfterSetPassword(size_t const& oldPasswordLen, size_t const& newPasswordLen);
 
 private:
 	/*==========*/
@@ -28,4 +29,3 @@ private:
 	uint32_t OffsetEntryTable;
 	/*==========*/
 };
-

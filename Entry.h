@@ -31,6 +31,7 @@ public:
 	string getPath() const;
 	uint32_t getSizeData() const;
 	uint32_t getSize() const;
+	uint16_t getPasswordLen() const;
 
 	virtual Entry* add(Entry const& entry);
 	virtual void del(Entry* entry);

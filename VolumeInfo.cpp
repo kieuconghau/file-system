@@ -45,3 +45,7 @@ void VolumeInfo::updateAfterDel(Entry const* entry)
 	this->OffsetEntryTable -= entry->getSizeData();
 }
 
+void VolumeInfo::updateAfterSetPassword(size_t const& oldPasswordLen, size_t const& newPasswordLen)
+{
+	this->SizeEntryTable += (newPasswordLen - oldPasswordLen);
+}

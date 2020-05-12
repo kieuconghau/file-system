@@ -208,10 +208,14 @@ void Volume::setPassword(Entry* f)
 	clrscr();
 	GUI::clearBackground();
 
+	size_t oldPasswordLen = f->getPasswordLen();
+
 	string pw = GUI::enterPassword();
 
 	if (f->isLocked()) {
-		if (f->checkPassword(pw)) f->resetPassword();
+		if (f->checkPassword(pw)) {
+			f->resetPassword();
+		}
 		else {
 			clrscr();
 			setColor(4, 0);
@@ -225,6 +229,9 @@ void Volume::setPassword(Entry* f)
 		f->setPassword(pw);
 	}
 
+	size_t newPasswordLen = f->getPasswordLen();
+
+	this->VolumeInfo.updateAfterSetPassword(oldPasswordLen, newPasswordLen);
 	this->writePasswordChange();
 }
 
@@ -393,3 +400,4 @@ void Volume::writePasswordChange() {
 		this->resize(newSize);
 	}
 }
+
