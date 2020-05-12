@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -19,6 +20,8 @@ public:
 	bool isEndOfEntryTable(fstream& file) const;
 
 	void updateAfterDel(Entry const* entry);
+
+	void write(ofstream& file, Entry const& entry);
 
 private:
 	/*==========*/

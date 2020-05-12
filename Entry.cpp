@@ -119,6 +119,18 @@ uint32_t Entry::getSize() const
 
 Entry* Entry::add(Entry const& entry) { return nullptr; }
 
+void Entry::write(ofstream& file) const
+{
+	file.write((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
+	file.write((char*)&this->ModifiedDate, sizeof(this->ModifiedDate));
+	file.write((char*)&this->Size, sizeof(this->Size));
+	file.write((char*)&this->PathLen, sizeof(this->PathLen));
+	file.write((char*)&this->PasswordLen, sizeof(this->PasswordLen));
+	file.write((char*)&this->OffsetData, sizeof(this->OffsetData));
+	file.write((char*)this->Path.c_str(), this->PathLen);
+	file.write((char*)this->Password.c_str(), this->PasswordLen);
+}
+
 void Entry::del(Entry* entry) {}
 
 vector<Entry*> Entry::getSubEntryList() const
@@ -134,5 +146,55 @@ void Entry::seekToHeadOfData(fstream& file) const
 void Entry::seekToEndOfData(fstream& file) const
 {
 	file.seekg((uint64_t)this->OffsetData + (uint64_t)this->SizeData);
+}
+
+void Entry::display(bool selected) {
+	if (selected) setColor(15, 1);
+
+	//Name
+	cout << " " << Name;
+	printSpace(49 - Name.length());
+
+	//Size
+	string s = numCommas(Size);
+	printSpace(20 - s.length());
+	cout << s << "   ";
+
+	//Type
+	gotoXY(whereX() + 10, whereY());
+
+	//Modified
+	//cout << "   " << date << " " << time;
+	//printSpace(27 - date.length() - 1 - time.length());
+	printSpace(30);
+	
+	//Password
+	if (isLocked()) {
+		printSpace(10 - 4);
+		cout << "[ON]";
+	}
+	else {
+		printSpace(10 - 5);
+		cout << "[OFF]";
+	}
+	cout << endl;
+
+	if (selected) setColor(15, 0);
+}
+
+void Entry::setPassword(string pw) {
+	SHA256 sha256;
+	this->Password = sha256(pw);
+	this->PasswordLen = Password.length();
+}
+
+void Entry::resetPassword() {
+	this->Password = "";
+	this->PasswordLen = 0;
+}
+
+bool Entry::checkPassword(string pw) {
+	SHA256 sha256;
+	return (Password.compare(sha256(pw)) == 0);
 }
 

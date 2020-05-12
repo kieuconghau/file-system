@@ -24,8 +24,41 @@ Entry* Folder::add(Entry const& tempEntry) {
 	}
 
 	this->EntryList.push_back(entry);
+  
+  return entry;
+}
 
-	return entry;
+void Folder::display(bool selected) {
+	if (selected) setColor(15, 1);
+
+	int y = whereY();
+	gotoXY(73, y);
+	cout << "Folder    ";
+	gotoXY(0, y);
+
+	if (selected) setColor(15, 0);
+	Entry::display(selected);
+}
+
+void Folder::displayParent(bool selected) {
+	if (selected) setColor(15, 1);
+
+	cout << " .."; printSpace(120);
+
+	int y = whereY();
+	gotoXY(73, y);
+	cout << "Folder    ";
+	gotoXY(0, y + 1);
+
+	if (selected) setColor(15, 0);
+}
+
+void Folder::show(int selected) {
+	displayParent(selected == 0);
+
+	for (int i = 0; i < EntryList.size(); i++) {
+		EntryList[i]->display(selected - 1 == i);
+	}
 }
 
 void Folder::del(Entry* entry)
@@ -46,3 +79,4 @@ vector<Entry*> Folder::getSubEntryList() const
 {
 	return this->EntryList;
 }
+

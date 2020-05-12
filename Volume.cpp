@@ -34,6 +34,7 @@ void Volume::open(string const& volumeFilePath)
 	}
 	file.close();
 
+	this->EntryTable.open();
 
 	/*
 	Show list of files/folders in this volume.
@@ -44,7 +45,7 @@ void Volume::open(string const& volumeFilePath)
 	- Set/Remove Password:	P
 	- Move down:			Down
 	- Move up:				Up
-	- Open folder:			Enter
+	- Open a folder:		Enter
 	- Back:					Backspace
 	- Exit:					Escape
 	*/
@@ -66,7 +67,7 @@ bool Volume::isVolumeFile(string const& volumeFilePath)
 
 	return isVF;
 }
-
+  
 void Volume::del(Entry* entry, Entry* parent)
 {
 	// Step 1: Delete this entry on File

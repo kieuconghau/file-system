@@ -1,4 +1,8 @@
 #pragma once
+
+#include "Console.h"
+#include "SHA256.h"
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -32,6 +36,18 @@ public:
 	virtual void del(Entry* entry);
 	virtual vector<Entry*> getSubEntryList() const;
 
+	void write(ofstream& file) const;
+
+	/* ============== BUU WRITE THIS ============== */
+	virtual void display(bool selected);
+	virtual void show(int selected) {};
+	virtual int getListSize() { return 0; };
+	virtual Entry* getEntryInList(int i) { return  nullptr; };
+	void setPassword(string pw);
+	void resetPassword();
+	bool checkPassword(string pw);
+	/* ============== BUU WRITE THIS ============== */
+  
 	void seekToHeadOfData(fstream& file) const;
 	void seekToEndOfData(fstream& file) const;
 

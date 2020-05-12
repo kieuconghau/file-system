@@ -14,6 +14,14 @@ public:
 	void del(Entry* entry) override;
 	vector<Entry*> getSubEntryList() const override;
 
+	/* ============== BUU WRITE THIS ============== */
+	void display(bool selected);
+	void displayParent(bool selected);
+	void show(int selected);
+	int getListSize() { return EntryList.size(); };
+	Entry* getEntryInList(int i) { return EntryList[i]; };
+	/* ============== BUU WRITE THIS ============== */
+
 private:
 	vector<Entry*> EntryList;
 };
