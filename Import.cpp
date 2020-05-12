@@ -87,22 +87,28 @@ FileEntry GetFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd,
 
 	char* p = file_entry.entry;
 
-	strcpy(p, (char*)file_info.modified_time);
+	memmove(p, (char*)&file_info.modified_time,
+		sizeof(file_info.modified_time));
 
 	p += sizeof(file_info.modified_time);
-	strcpy(p, (char*)file_info.modified_date);
+	memmove(p, (char*)&file_info.modified_date,
+		sizeof(file_info.modified_date));
 
 	p += sizeof(file_info.modified_date);
-	strcpy(p, (char*)file_info.file_size);
+	memmove(p, (char*)&file_info.file_size,
+		sizeof(file_info.file_size));
 
 	p += sizeof(file_info.file_size);
-	strcpy(p, (char*)file_info.file_name_length);
+	memmove(p, (char*)&file_info.file_name_length,
+		sizeof(file_info.file_name_length));
 
 	p += sizeof(file_info.file_name_length);
-	strcpy(p, (char*)file_info.file_password_length);
+	memmove(p, (char*)&file_info.file_password_length,
+		sizeof(file_info.file_password_length));
 
 	p += sizeof(file_info.file_password_length);
-	strcpy(p, (char*)file_info.file_offset);
+	memmove(p, (char*)&file_info.file_offset,
+		sizeof(file_info.file_offset));
 
 	p += sizeof(file_info.file_offset);
 	strncpy(p, file_info.file_name, file_info.file_name_length);
@@ -250,11 +256,8 @@ void Import(Volume &volume, string new_file_path) {
 			FileData file_data;
 			file_data.file_size =
 				file_entry_vector[i].file_info.file_size;
-
 			file_data.data = new char[file_data.file_size];
-
 			file_stream.read(file_data.data, file_data.file_size);
-
 			file_data_vector.push_back(file_data);
 
 			file_stream.close();
@@ -344,8 +347,16 @@ void Import(Volume &volume, string new_file_path) {
 	volume.entry_table_size = (int)volume.stream.tellp()
 		- volume.entry_table_offset;
 
+	// Update the offset of Volume Info Area.
+	volume.volume_info_area_offset = volume.stream.tellp();
+
 	// Write the Volume Info Area
 	volume.stream.write(volume_info_area, volume.volume_info_area_size);
+
+	// Update the "empty" state of the volume
+	if (volume.is_empty == true) {
+		volume.is_empty = false;
+	}
 
 	// Extra step:
 	// Deallocate all the memory we've borrowed from heap memory.

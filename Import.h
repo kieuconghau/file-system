@@ -13,6 +13,7 @@ struct Volume {
 	bool is_empty;	// An empty volume has no data in Data Area
 					// and no Entry Table, and has only
 					// the Volume Info Area.
+
 	int volume_info_area_offset;
 	int volume_info_area_size;
 	int entry_table_offset;
