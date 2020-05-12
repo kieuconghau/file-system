@@ -123,7 +123,7 @@ void Entry::write(ofstream& file) const
 {
 	file.write((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
 	file.write((char*)&this->ModifiedDate, sizeof(this->ModifiedDate));
-	file.write((char*)&this->Size, sizeof(this->Size));
+	file.write((char*)&this->SizeData, sizeof(this->SizeData));
 	file.write((char*)&this->PathLen, sizeof(this->PathLen));
 	file.write((char*)&this->PasswordLen, sizeof(this->PasswordLen));
 	file.write((char*)&this->OffsetData, sizeof(this->OffsetData));
@@ -156,7 +156,7 @@ void Entry::display(bool selected) {
 	printSpace(49 - Name.length());
 
 	//Size
-	string s = numCommas(Size);
+	string s = numCommas(this->SizeData);
 	printSpace(20 - s.length());
 	cout << s << "   ";
 
