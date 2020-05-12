@@ -381,13 +381,15 @@ void Volume::seekToHeadOfEntryTable(fstream& file) const
 void Volume::writePasswordChange() {
 	fstream file(this->Path);
 
+	size_t newSize = 0;
 	if (file.is_open()) {
 		this->seekToHeadOfEntryTable(file);
 		this->EntryTable.write(file);
 		this->VolumeInfo.write(file);
 
-		this->resize(file.tellg());
-
+		newSize = file.tellg();
 		file.close();
+
+		this->resize(newSize);
 	}
 }
