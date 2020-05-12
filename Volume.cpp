@@ -34,21 +34,7 @@ void Volume::open(string const& volumeFilePath)
 	}
 	file.close();
 
-	this->EntryTable.open();
-
-	/*
-	Show list of files/folders in this volume.
-	Press hotkeys to implement some funtions:
-	- Import:				I
-	- Export:				E
-	- Delete:				D
-	- Set/Remove Password:	P
-	- Move down:			Down
-	- Move up:				Up
-	- Open a folder:		Enter
-	- Back:					Backspace
-	- Exit:					Escape
-	*/
+	this->performFunctions();
 }
 
 bool Volume::isVolumeFile(string const& volumeFilePath)
@@ -68,6 +54,178 @@ bool Volume::isVolumeFile(string const& volumeFilePath)
 	return isVF;
 }
   
+void Volume::performFunctions()
+{
+	this->navigate(this->EntryTable.Root);
+}
+
+void Volume::navigate(Entry* f) {
+	// Check if f is nullptr
+	if (!f) return;
+
+	char x = 0;
+	bool back = false;
+
+	// Ridiculous error fix
+	GUI::clearBackground();
+
+	// Reset line
+	GUI::reset();
+	this->updateMenu(f);
+
+	while (true) {
+
+		if (_kbhit()) {
+			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+			// ============= ENTER =============
+			if (GetKeyState(0x0D) & 0x8000) {
+				while ((GetAsyncKeyState(VK_RETURN) & 0x8000)) {};
+
+				/*
+				if (line != 0) {
+					if (f->getEntryInList(line - 1)->isFolder())
+						Navigation(f->getEntryInList(line - 1));
+				}
+				else {
+					back = true;
+					reset();
+				}
+				*/
+				this->enterFolder(f, back);
+			}
+
+			// ============= UP =============
+			if (GetKeyState(VK_UP) & 0x8000) {
+				if (GUI::line == 0) {
+					GUI::line = f->getListSize();
+				}
+				else GUI::line--;
+				GUI::line %= f->getListSize() + 1;
+			}
+
+			// ============= DOWN =============
+			if (GetKeyState(VK_DOWN) & 0x8000) {
+				GUI::line++;
+				GUI::line %= f->getListSize() + 1;
+			}
+
+			// ============= BACK =============
+			if (GetKeyState(0x08) & 0x8000) {
+				while ((GetAsyncKeyState(VK_BACK) & 0x8000)) {};
+
+				back = true;
+				GUI::reset();
+			}
+
+			// ============= EXIT =============
+			if (GetKeyState(0x1B) & 0x8000) {
+				GUI::esc = true;
+			}
+
+			// ============= PASSWORD =============
+			if (GetKeyState(0x50) & 0x8000) {
+				while ((GetAsyncKeyState(0x50) & 0x8000)) {};
+
+				this->setPassword(f->getEntryInList(GUI::line - 1));
+			}
+
+			// ========== DELETE A FILE/FOLDER ==========
+			if (GetKeyState(0x44) & 0x8000) {
+				while ((GetAsyncKeyState(0x44) & 0x8000)) {};
+
+				if (GUI::line != 0) {
+					this->del(f->getEntryInList(GUI::line - 1), f);
+				}
+			}
+
+			// Refresh menu
+			if (!GUI::esc) {
+				updateMenu(f);
+			}
+		}
+
+
+		if (back || GUI::esc) break;
+	}
+
+}
+
+void Volume::updateMenu(Entry* entry)
+{
+	clrscr();
+
+	setColor(0, 10);
+	cout << " Path ";
+
+	setColor(10, 0);
+	cout << " " << entry->getPath(); printSpace(123 - entry->getPath().size() - 7);
+
+	setColor(0, 7);
+	cout << " Name"; printSpace(42); cout << " | "; printSpace(16); cout << "Size | Type"; printSpace(6); cout << " | Modified"; printSpace(16); cout << " |  Password " << endl;
+	setColor(15, 0);
+
+	entry->show(GUI::line);
+}
+
+void Volume::enterFolder(Entry* parent, bool& back)
+{
+	if (GUI::line == 0) {
+		back = true;
+		GUI::reset();
+		return;
+	}
+
+	string pw;
+
+	Entry* f = parent->getEntryInList(GUI::line - 1);
+
+	if (!f->isFolder()) return;
+
+	if (f->isLocked()) {
+		clrscr();
+		GUI::clearBackground();
+
+		pw = GUI::enterPassword();
+
+		if (f->checkPassword(pw)) {
+			this->navigate(f);
+		}
+		else {
+			setColor(4, 0);
+			cout << "Error: Invalid password. Access folder denied. ";
+			system("pause");
+			setColor(15, 0);
+		}
+	}
+	else {
+		this->navigate(f);
+	}
+}
+
+void Volume::setPassword(Entry* f)
+{
+	if (GUI::line == 0) return; // Case parent folder
+
+	clrscr();
+	GUI::clearBackground();
+
+	string pw = GUI::enterPassword();
+
+	if (f->isLocked()) {
+		if (f->checkPassword(pw)) f->resetPassword();
+		else {
+			setColor(4, 0);
+			cout << "Error: Invalid password. Reset pasword denied. ";
+			system("pause");
+			setColor(15, 0);
+		}
+	}
+	else {
+		f->setPassword(pw);
+	}
+}
+
 void Volume::del(Entry* entry, Entry* parent)
 {
 	// Step 1: Delete this entry on File

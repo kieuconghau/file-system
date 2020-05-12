@@ -71,10 +71,3 @@ void EntryTable::updateAfterDel(Entry const* entry)
 	this->EntryList.shrink_to_fit();
 }
 
-void EntryTable::open() {
-	GUI scr;
-
-	scr.setWindows(W, H);
-
-	scr.Navigation(this->Root);
-}
