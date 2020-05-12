@@ -59,6 +59,9 @@ void Entry::write(fstream& file) const
 
 bool Entry::isFolder() const
 {
+	if (this->Path == "") {
+		throw "Logic Error";
+	}
 	return Path.back() == SLASH;
 }
 

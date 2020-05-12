@@ -30,6 +30,8 @@ private:
 	void deleteOnVolume(Entry* f);
 	void del(Entry* entry, Entry* parent);
 
+	void resize(size_t const& size);
+
 private:
 	string		Path;
 	VolumeInfo	VolumeInfo;
