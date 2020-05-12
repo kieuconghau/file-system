@@ -239,13 +239,27 @@ void Volume::setPassword(Entry* f)
 
 void Volume::del(Entry* entry, Entry* parent)
 {
-	// Step 1: Delete this entry on File
+	// Step 1: Find and delete all sub-entries of this entry (Recursively)
+	vector<Entry*> subEntryList = entry->getSubEntryList();
+	for (Entry* subEntry : subEntryList) {
+		if (subEntry->isLocked()) {
+			continue;
+		}
+		this->del(subEntry, entry);
+	}
+
+	// Step 2: Check if this entry still stores sub-entries, if yes, we can not delete this entry.
+	if (entry->getListSize() != 0) {
+		return;
+	}
+
+	// Step 3: Delete this entry on File
 	size_t newEndPosOfVolumeFile = 0;
 	fstream file(this->Path);
 	if (file.is_open()) {
 		file.clear();
 
-		// Step 1.1: Data Field
+		// Step 3.1: Data Field
 		size_t const BLOCK_SIZE = 4096;	// byte
 		uint8_t subData[BLOCK_SIZE];
 
@@ -275,11 +289,11 @@ void Volume::del(Entry* entry, Entry* parent)
 		file.seekg(startWrite);
 		file.write((char*)subData, shiftingDataSize);
 
-		// Step 1.2: Entry Table
+		// Step 3.2: Entry Table
 		this->EntryTable.updateAfterDel(entry);
 		this->EntryTable.write(file);
 
-		// Step 1.3: Volume Info
+		// Step 3.3: Volume Info
 		this->VolumeInfo.updateAfterDel(entry);
 		this->VolumeInfo.write(file);
 
@@ -287,16 +301,10 @@ void Volume::del(Entry* entry, Entry* parent)
 	}
 	file.close();
 
-	// Step 1.4: Resize this Volume File
+	// Step 3.4: Resize this Volume File
 	this->resize(newEndPosOfVolumeFile);
 
-	// Step 2: Find and delete all sub-entries of this entry (Recursively)
-	vector<Entry*> subEntryList = entry->getSubEntryList();
-	for (Entry* subEntry : subEntryList) {
-		this->del(subEntry, entry);
-	}
-
-	// Step 3: Delete this entry on RAM
+	// Step 4: Delete this entry on RAM
 	parent->del(entry);
 }
 
@@ -362,8 +370,19 @@ void Volume::deleteOnVolume(Entry* f) {
 
 	if ((pw.compare("DELETE") == 0) || (pw.compare("delete") == 0)) {
 		this->del(f, parent);
-		setColor(10, 0);
-		cout << "Program: " << name << " is deleted successfully. " << endl;
+		
+		if (f) {
+			setColor(12, 0);
+			cout << "Program: '" << name << "' can not be deleted totally because this folder still stores some files or folders secured with password." << endl;
+			cout << endl;
+			cout << "         To delete '" << name << "' totally, make sure that all files or folders stored in this folder have no password." << endl;
+		}
+		else {
+			setColor(10, 0);
+			cout << "Program: " << name << " is deleted successfully. " << endl;
+		}
+		cout << endl;
+		setColor(11, 0);
 		system("pause");
 		setColor(15, 0);
 		GUI::reset();

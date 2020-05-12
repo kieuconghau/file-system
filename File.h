@@ -10,7 +10,7 @@ public:
 	~File();
 	
 	/* ============== BUU WRITE THIS ============== */
-	void display(bool selected);
+	void display(bool selected) override;
 	/* ============== BUU WRITE THIS ============== */
   
 	Entry* add(Entry const& entry) override;
