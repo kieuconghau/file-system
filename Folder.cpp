@@ -8,26 +8,9 @@ Folder::~Folder()
 		delete entry;
 		entry = nullptr;
 	}
-}
 
-Entry* Folder::findParent(vector<string>& ancestorNameList) const
-{
-	if (ancestorNameList.size() == 0)
-		return nullptr;
-
-	for (Entry* entry : this->EntryList) {
-		if (entry->isFolder() && entry->hasName(*ancestorNameList.begin())) {
-			if (ancestorNameList.size() == 1) {
-				return entry;
-			}
-			ancestorNameList.erase(ancestorNameList.begin());
-			ancestorNameList.shrink_to_fit();
-			return entry->findParent(ancestorNameList);
-		}
-	}
-
-	throw "Logic Error";
-	return nullptr;
+	this->EntryList.resize(0);
+	this->EntryList.shrink_to_fit();
 }
 
 Entry* Folder::add(Entry const& tempEntry) {
@@ -45,7 +28,21 @@ Entry* Folder::add(Entry const& tempEntry) {
 	return entry;
 }
 
-void Folder::del()
+void Folder::del(Entry* entry)
 {
+	for (auto entryIterator = this->EntryList.begin(); entryIterator != this->EntryList.end(); ++entryIterator) {
+		if (*entryIterator == entry) {
+			delete *entryIterator;
+			this->EntryList.erase(entryIterator);
+			this->EntryList.shrink_to_fit();
+			return;
+		}
+	}
 
+	throw "Logic Error";
+}
+
+vector<Entry*> Folder::getSubEntryList() const
+{
+	return this->EntryList;
 }

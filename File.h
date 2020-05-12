@@ -7,10 +7,10 @@ class File : public Entry
 public:
 	File() = default;
 	File(Entry const& entry);
-	~File() = default;
+	~File();
 
-	Entry* findParent(vector<string>& ancestorNameList) const override;
 	Entry* add(Entry const& entry) override;
-	void del() override;
+	void del(Entry* entry) override;
+	vector<Entry*> getSubEntryList() const override;
 };
 

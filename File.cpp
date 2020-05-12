@@ -2,14 +2,13 @@
 
 File::File(Entry const& entry) : Entry(entry) {}
 
-Entry* File::findParent(vector<string>& ancestorNameList) const
-{
-	return nullptr;
-}
+File::~File() {}
 
 Entry* File::add(Entry const& entry) { return nullptr; }
 
-void File::del()
-{
+void File::del(Entry* entry) {}
 
+vector<Entry*> File::getSubEntryList() const
+{
+	return vector<Entry*>();
 }

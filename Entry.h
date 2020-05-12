@@ -7,10 +7,14 @@ using namespace std;
 class Entry
 {
 	friend class EntryTable;
+
+public:
+	static const char SLASH = '/';
+
 public:
 	Entry();
 	Entry(Entry const& entry);
-	virtual ~Entry() = default;
+	virtual ~Entry();
 
 	void read(fstream& file);
 	void write(fstream& file) const;
@@ -18,20 +22,18 @@ public:
 	bool isFolder() const;
 	bool isLocked() const;
 	bool hasName(string const& name) const;
+	bool hasParent(Entry const* parent) const;
 	
 	string getPath() const;
 	uint32_t getSizeData() const;
 	uint32_t getSize() const;
 
-	virtual Entry* findParent(vector<string>& ancestorNameList) const;
 	virtual Entry* add(Entry const& entry);
-	virtual void del();
+	virtual void del(Entry* entry);
+	virtual vector<Entry*> getSubEntryList() const;
 
 	void seekToHeadOfData(fstream& file) const;
 	void seekToEndOfData(fstream& file) const;
-
-private:
-	void splitPath();
 
 protected:
 	/*==========*/
@@ -45,9 +47,5 @@ protected:
 	string		Password;
 	/*==========*/
 	string Name;
-
-private:
-	vector<string>		AncestorNameList;
-	static const char	SLASH = '/';
 };
 

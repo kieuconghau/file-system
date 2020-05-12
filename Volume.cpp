@@ -5,12 +5,15 @@ Volume::Volume() : VolumeInfo(), EntryTable()
 	this->Path = "";
 }
 
+Volume::~Volume() {}
+
 void Volume::create(string const& volumeFilePath)
 {
 	this->Path = volumeFilePath;
 
 	fstream file(this->Path, ios_base::out);
 	if (file.is_open()) {
+		file.clear();
 		this->VolumeInfo.write(file);
 	}
 	file.close();
@@ -22,6 +25,7 @@ void Volume::open(string const& volumeFilePath)
 	
 	fstream file(this->Path);
 	if (file.is_open()) {
+		file.clear();
 		this->seekToHeadOfVolumeInfo(file);
 		this->VolumeInfo.read(file);
 
@@ -53,6 +57,7 @@ bool Volume::isVolumeFile(string const& volumeFilePath)
 
 	fstream file(this->Path, ios_base::in);
 	if (file.is_open()) {
+		file.clear();
 		this->seekToHeadOfVolumeInfo(file);
 		this->VolumeInfo.read(file);
 		isVF = this->VolumeInfo.checkSignature(file);
@@ -62,13 +67,15 @@ bool Volume::isVolumeFile(string const& volumeFilePath)
 	return isVF;
 }
 
-void Volume::del(Entry* entry, Entry const* parent)
+void Volume::del(Entry* entry, Entry* parent)
 {
+	// Step 1: Delete this entry on File
+	size_t newEndPosOfVolumeFile = 0;
 	fstream file(this->Path);
 	if (file.is_open()) {
 		file.clear();
 
-		// Data Field
+		// Step 1.1: Data Field
 		size_t const BLOCK_SIZE = 4096;	// byte
 		uint8_t subData[BLOCK_SIZE];
 
@@ -98,18 +105,52 @@ void Volume::del(Entry* entry, Entry const* parent)
 		file.seekg(startWrite);
 		file.write((char*)subData, shiftingDataSize);
 
-		// Entry Table
+		// Step 1.2: Entry Table
 		this->EntryTable.updateAfterDel(entry);
 		this->EntryTable.write(file);
 
-		// Volume Info
+		// Step 1.3: Volume Info
 		this->VolumeInfo.updateAfterDel(entry);
 		this->VolumeInfo.write(file);
 
-		// Delete entry
-		entry->del();
+		newEndPosOfVolumeFile = file.tellg();
 	}
 	file.close();
+
+	// Step 1.4: Resize this Volume File
+	LPTSTR lpfname = new TCHAR[this->Path.length() + 1];
+	for (size_t i = 0; i < this->Path.length(); ++i) {
+		lpfname[i] = (CHAR)this->Path[i];
+	}
+	lpfname[this->Path.length()] = '\0';
+
+	HANDLE file_1 = CreateFile(
+		lpfname,
+		GENERIC_WRITE,
+		FILE_SHARE_WRITE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+
+	DWORD dwErr = GetLastError();
+	if (dwErr > 0) {
+		cout << "Error: " << dwErr << endl;
+		throw;
+	}
+
+	SetFilePointer(file_1, newEndPosOfVolumeFile, 0, FILE_BEGIN);
+	SetEndOfFile(file_1);
+	CloseHandle(file_1);
+
+	// Step 2: Find and delete all sub-entries of this entry (Recursively)
+	vector<Entry*> subEntryList = entry->getSubEntryList();
+	for (Entry* subEntry : subEntryList) {
+		this->del(subEntry, entry);
+	}
+
+	// Step 3: Delete this entry on RAM
+	parent->del(entry);
 }
 
 void Volume::seekToHeadOfVolumeInfo(fstream& file) const

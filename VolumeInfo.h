@@ -9,7 +9,7 @@ class VolumeInfo
 {
 public:
 	VolumeInfo();
-	~VolumeInfo() = default;
+	~VolumeInfo();
 
 	void write(fstream& file) const;
 	void read(fstream& file) const;

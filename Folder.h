@@ -10,11 +10,11 @@ public:
 	Folder(Entry const& entry);
 	~Folder();
 
-	Entry* findParent(vector<string>& ancestorNameList) const override;
 	Entry* add(Entry const& tempEntry) override;
-	void del() override;
+	void del(Entry* entry) override;
+	vector<Entry*> getSubEntryList() const override;
 
 private:
-	vector<Entry*>	EntryList;
+	vector<Entry*> EntryList;
 };
 

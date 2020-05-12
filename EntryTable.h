@@ -11,9 +11,11 @@ public:
 	~EntryTable();
 
 	void read(fstream& file, VolumeInfo const& volumeInfo);
-
-	void updateAfterDel(Entry const* entry);
 	void write(fstream& file) const;
+
+	void add(Entry const& entry);
+	
+	void updateAfterDel(Entry const* entry);
 
 private:
 	Entry* Root;

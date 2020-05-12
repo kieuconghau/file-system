@@ -8,22 +8,38 @@ EntryTable::EntryTable()
 EntryTable::~EntryTable()
 {
 	delete this->Root;
-	this->Root = nullptr;
 }
 
 void EntryTable::read(fstream& file, VolumeInfo const& volumeInfo)
 {
 	while (!volumeInfo.isEndOfEntryTable(file)) {
-		Entry tempEntry;
-		tempEntry.read(file);
+		Entry entry;
+		entry.read(file);
+		this->add(entry);
+	}
+}
 
-		vector<string> ancestorNameList = tempEntry.AncestorNameList;
-		Entry* parent = this->Root->findParent(ancestorNameList);
-		if (parent == nullptr) {
-			parent = this->Root;
+void EntryTable::write(fstream& file) const
+{
+	for (Entry* entry : this->EntryList) {
+		entry->write(file);
+	}
+}
+
+void EntryTable::add(Entry const& entry)
+{
+	bool foundParent = false;
+	
+	for (Entry* parent : this->EntryList) {
+		if (entry.hasParent(parent)) {
+			this->EntryList.push_back(parent->add(entry));
+			foundParent = true;
+			return;
 		}
+	}
 
-		this->EntryList.push_back(parent->add(tempEntry));
+	if (!foundParent) {
+		this->EntryList.push_back(this->Root->add(entry));
 	}
 }
 
@@ -54,9 +70,3 @@ void EntryTable::updateAfterDel(Entry const* entry)
 	this->EntryList.shrink_to_fit();
 }
 
-void EntryTable::write(fstream& file) const
-{
-	for (auto entry = this->EntryList.begin(); entry != this->EntryList.end(); ++entry) {
-		(*entry)->write(file);
-	}
-}

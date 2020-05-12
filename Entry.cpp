@@ -18,6 +18,8 @@ Entry::Entry(Entry const& entry)
 	*this = entry;
 }
 
+Entry::~Entry() {}
+
 void Entry::read(fstream& file)
 {
 	file.read((char*)&this->ModifiedTime, sizeof(this->ModifiedTime));
@@ -33,7 +35,14 @@ void Entry::read(fstream& file)
 	this->Password.resize(this->PasswordLen);
 	file.read((char*)this->Password.c_str(), this->PasswordLen);
 
-	this->splitPath();
+	size_t startPosOfName = 0;
+	for (int i = this->PathLen - 1 - this->isFolder(); i >= 0; --i) {
+		if (this->Path[i] == SLASH) {
+			startPosOfName = i + 1;
+			break;
+		}
+	}
+	this->Name = this->Path.substr(startPosOfName, this->PathLen - startPosOfName - this->isFolder());
 }
 
 void Entry::write(fstream& file) const
@@ -63,6 +72,33 @@ bool Entry::hasName(string const& name) const
 	return name == this->Name;
 }
 
+bool Entry::hasParent(Entry const* parent) const
+{
+	string parentPath = parent->getPath();
+
+	if (parentPath.length() >= this->PathLen) {
+		return false;
+	}
+
+	size_t i = 0;
+
+	while (i < parentPath.length()) {
+		if (parentPath[i] != this->Path[i]) {
+			return false;
+		}
+		++i;
+	}
+
+	while (i < this->PathLen - this->isFolder()) {
+		if (this->Path[i] == SLASH) {
+			return false;
+		}
+		++i;
+	}
+
+	return true;
+}
+
 string Entry::getPath() const
 {
 	return this->Path;
@@ -81,43 +117,22 @@ uint32_t Entry::getSize() const
 		+ this->Path.length() + this->Password.length();
 }
 
-Entry* Entry::findParent(vector<string>& ancestorNameList) const
-{
-	return nullptr;
-}
-
 Entry* Entry::add(Entry const& entry) { return nullptr; }
 
-void Entry::del() {}
+void Entry::del(Entry* entry) {}
+
+vector<Entry*> Entry::getSubEntryList() const
+{
+	return vector<Entry*>();
+}
 
 void Entry::seekToHeadOfData(fstream& file) const
 {
-	file.clear();
 	file.seekg(this->OffsetData);
 }
 
 void Entry::seekToEndOfData(fstream& file) const
 {
-	file.clear();
 	file.seekg((uint64_t)this->OffsetData + (uint64_t)this->SizeData);
 }
 
-void Entry::splitPath()
-{
-	string tempPath = this->Path;
-	if (!this->isFolder()) {
-		tempPath += SLASH;
-	}
-
-	size_t slashIndex;
-	for (size_t i = 0; i < tempPath.length(); i = slashIndex + 1) {
-		slashIndex = tempPath.find(SLASH, i);
-		this->AncestorNameList.push_back(tempPath.substr(i, slashIndex - i));
-	}
-
-	if (this->AncestorNameList.size() != 0) {
-		this->Name = this->AncestorNameList.back();
-		this->AncestorNameList.pop_back();
-		this->AncestorNameList.shrink_to_fit();
-	}
-}

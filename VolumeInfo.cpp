@@ -7,6 +7,8 @@ VolumeInfo::VolumeInfo()
 	this->OffsetEntryTable	= 0;
 }
 
+VolumeInfo::~VolumeInfo() {}
+
 void VolumeInfo::write(fstream& file) const
 {
 	file.write((char*)&this->Signature, sizeof(this->Signature));
