@@ -18,6 +18,8 @@ void GUI::clearBackground() {
     printSpace(123);
     gotoXY(0, line + 2);
     printSpace(123); 
+    gotoXY(0, line + 25);
+    printSpace(123);
     gotoXY(0, 0);
 
     setColor(15, 0);
@@ -73,14 +75,20 @@ string GUI::enterPassword() {
     return pw;
 }
 
-
-void GUI::printProgress(string content, int color, double percentage) {
+void GUI::printProgress(string content, double percentage) {
     int val = (int)(percentage * 100);
     int lpad = (int)(percentage * PBWIDTH);
     int rpad = PBWIDTH - lpad;
-    printf("[%.*s%*s]",  lpad, PBSTR, rpad, "");
-    cout << endl;
 
-    // \r%3d%%  val,
+    setColor(13, 0);
+    cout << content; gotoXY(10 - content.length(), whereY());
+
+    setColor(14, 0);
+    printf("%3d%%", val);
+
+    setColor(10, 0);
+    printf("  [%.*s%*s]\n", lpad, PBSTR, rpad, ""); 
+
+    setColor(15, 0);
     fflush(stdout);
 }

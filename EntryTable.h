@@ -2,6 +2,7 @@
 #include "VolumeInfo.h"
 #include "Entry.h"
 #include "Folder.h"
+#include "GUI.h"
 
 class EntryTable
 {

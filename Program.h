@@ -16,5 +16,7 @@ private:
 	void openVolume();
 	void createVolume();
 	void closeVolume();
+	void homeScreen();
+	void homeNavigate();
 };
 

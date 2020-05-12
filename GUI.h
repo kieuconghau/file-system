@@ -8,6 +8,9 @@
 #define W 1017
 #define H 572
 
+#define w 123
+#define h 33
+
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 #define PBWIDTH 60
 
@@ -22,7 +25,7 @@ public:
 	static void clearBackground();
 	static void reset();
 	static string enterPassword();
-	static void printProgress(string content, int color, double percentage);
+	static void printProgress(string content, double percentage);
 
 private:
 	static string hidePassword();
