@@ -192,7 +192,7 @@ void Entry::display(bool selected) {
 
 void Entry::setPassword(string pw) {
 	SHA256 sha256;
-	this->Password = sha256(pw);
+	this->Password = sha256(addPepper(addSalt(pw)));
 	this->PasswordLen = Password.length();
 }
 
@@ -203,6 +203,26 @@ void Entry::resetPassword() {
 
 bool Entry::checkPassword(string pw) {
 	SHA256 sha256;
-	return (Password.compare(sha256(pw)) == 0);
+	uint8_t salt[3] = { 0x4E , 0x48 ,0x54 };
+
+	for (int i = 0; i < pw.length(); i++) {
+		pw[i] = pw[i] ^ salt[0];
+		
+		for (int j = 0; j < pw.length(); j++) {
+			pw[j] = pw[j] ^ salt[1];
+
+			for (int u = 0; u < pw.length(); u++) {
+				pw[u] = pw[u] ^ salt[2];
+
+				for (uint8_t w = 0; w < 256; w++) {
+					pw += (char)w;
+
+					if (this->Password.compare(pw) == 0) return true;
+				}
+			}
+		}
+	}
+	
+	return false;
 }
 

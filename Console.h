@@ -6,9 +6,12 @@
 #include <thread>
 #include <sstream>
 #include <algorithm>
-using namespace std;
+#include <stdlib.h>
+#include <time.h>
+
 
 using namespace std;
+
 
 void printSpace(int n);
 string numCommas(int value);
@@ -21,7 +24,10 @@ unsigned int whereX();
 unsigned int whereY();
 void sleep(int x);
 
-// Simple Hash Function
+// Add pepper
+string addSalt(string pw);
+string addPepper(string pw);
+
 unsigned int SHF(string input);
 string toHex(unsigned int input);
 

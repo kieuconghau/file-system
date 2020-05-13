@@ -84,3 +84,27 @@ string toHex(unsigned int input) {
     std::transform(hexhash.begin(), hexhash.end(), hexhash.begin(), ::toupper);
     return hexhash;
 }
+
+string addSalt(string pw) {
+    uint8_t salt[3] = { 0x4E , 0x48 ,0x54 };
+
+    int r1 = rand() % (pw.length());
+    int r2 = rand() % (pw.length());
+    int r3 = rand() % (pw.length());
+
+    cout << r1 << " " << r2 << " " << r3 << endl;
+
+    pw[r1] = pw[r1] ^ salt[0];
+    pw[r2] = pw[r2] ^ salt[1];
+    pw[r3] = pw[r3] ^ salt[2];
+
+    return pw;
+}
+
+string addPepper(string pw) {
+    char pepper = rand() % (255 + 1);
+    
+    pw += pepper;
+
+    return pw;
+}
