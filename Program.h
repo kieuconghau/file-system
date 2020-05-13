@@ -16,10 +16,9 @@ private:
 	Cache Cache;
 private:
 	void openVolume();
-	void openVolumeInCache();
 	void createVolume();
 	
-	void initializeVolume();
+	void initializeVolume(string const& volumeFilePath);
 	void closeVolume();
 	
 	void homeScreen();

@@ -4,6 +4,18 @@ void setColor(int textColor, int bgColor) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (textColor + (bgColor * 16)));
 }
 
+void printTextAtMid(string const& text, size_t const& left, size_t const& right)
+{
+    gotoXY((right - left + text.length()) / 2, whereY());
+    cout << text;
+}
+
+
+void setColor(COLOR textColor, COLOR bgColor)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ((size_t)textColor + ((size_t)bgColor * 16)));
+}
+
 void clrscr()
 {
     CONSOLE_SCREEN_BUFFER_INFO	csbiInfo;
@@ -62,6 +74,17 @@ unsigned int whereY() {
 
 void sleep(int x) {
     std::this_thread::sleep_for(std::chrono::milliseconds(x));
+}
+
+void showConsoleCursor(bool showFlag)
+{
+    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_CURSOR_INFO     cursorInfo;
+
+    GetConsoleCursorInfo(output, &cursorInfo);
+    cursorInfo.bVisible = showFlag; // set cursor's visibility
+    SetConsoleCursorInfo(output, &cursorInfo);
 }
 
 unsigned int SHF(string input) {

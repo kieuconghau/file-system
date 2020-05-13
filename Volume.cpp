@@ -5,12 +5,15 @@ Volume::Volume() : VolumeInfo(), EntryTable()
 	this->Path = "";
 }
 
+Volume::Volume(string const& volumeFilePath)
+{
+	this->initialize(volumeFilePath);
+}
+
 Volume::~Volume() {}
 
-bool Volume::create(string const& volumeFilePath)
+bool Volume::create()
 {
-	this->Path = volumeFilePath;
-
 	// Check if this file exists, if yes, we cannot create a volume file with this name
 	fstream tempFile(this->Path, ios_base::in);
 	if (tempFile.is_open()) {
@@ -18,6 +21,7 @@ bool Volume::create(string const& volumeFilePath)
 		return false;
 	}
 
+	// Create a volume file
 	fstream file(this->Path, ios_base::out);
 	if (file.is_open()) {
 		file.clear();
@@ -29,10 +33,9 @@ bool Volume::create(string const& volumeFilePath)
 	return false;
 }
 
-void Volume::open(string const& volumeFilePath)
+void Volume::open()
 {
-	this->Path = volumeFilePath;
-	
+	// Open a volume file, then read info of VolumeInfo and EntryTable
 	fstream file(this->Path);
 	if (file.is_open()) {
 		file.clear();
@@ -44,13 +47,20 @@ void Volume::open(string const& volumeFilePath)
 	}
 	file.close();
 
+	// Show list of files/folders in this volume.
+	// Perform all functions like: import, export, delete, set/reset password for a file/folder
 	this->performFunctions();
 }
 
-bool Volume::isVolumeFile(string const& volumeFilePath)
+string Volume::getPath() const
 {
+	return this->Path;
+}
+
+bool Volume::isVolumeFile()
+{
+	// Open file and check if this file is a volume file
 	bool isVF = false;
-	this->Path = volumeFilePath;
 
 	fstream file(this->Path, ios_base::in);
 	if (file.is_open()) {
@@ -327,12 +337,14 @@ bool Volume::del(Entry* entry, Entry* parent)
 
 void Volume::resize(size_t const& size)
 {
+	// Convert the path of this volume from string to LPTSTR
 	LPTSTR lpfname = new TCHAR[this->Path.length() + 1];
 	for (size_t i = 0; i < this->Path.length(); ++i) {
 		lpfname[i] = (CHAR)this->Path[i];
 	}
 	lpfname[this->Path.length()] = '\0';
 
+	// Open this volume file with the path name in LPTSTR type
 	HANDLE file = CreateFile(
 		lpfname,
 		GENERIC_WRITE,
@@ -342,12 +354,14 @@ void Volume::resize(size_t const& size)
 		FILE_ATTRIBUTE_NORMAL,
 		NULL);
 
+	// Check error after opening this volume file
 	DWORD dwErr = GetLastError();
 	if (dwErr > 0) {
 		cout << "Error: " << dwErr << endl;
 		throw;
 	}
 
+	// Resize this volume file and close file
 	SetFilePointer(file, size, 0, FILE_BEGIN);
 	SetEndOfFile(file);
 	CloseHandle(file);
@@ -421,6 +435,33 @@ void Volume::deleteOnVolume(Entry* f) {
 	}
 
 	
+}
+
+void Volume::initialize(string const& volumeFilePath)
+{
+	// Convert the path of this volume from string to LPTSTR
+	LPTSTR lptstrVFP = new TCHAR[volumeFilePath.length() + 1];
+	for (size_t i = 0; i < volumeFilePath.length(); ++i) {
+		lptstrVFP[i] = (TCHAR)volumeFilePath[i];
+	}
+	lptstrVFP[volumeFilePath.length()] = '\0';
+
+	// Get a full path (LPTSTR) for this volume file with the path in LPTSTR type
+	LPTSTR tempPath = new TCHAR[MAX_PATH];
+	GetFullPathName(lptstrVFP, MAX_PATH, tempPath, NULL);
+
+	// Covert a full path name from LPTSTR to string
+	for (size_t i = 0; i < MAX_PATH; ++i) {
+		if (tempPath[i] == '\0') {
+			break;
+		}
+		if (tempPath[i] == '\\') {
+			this->Path += Entry::SLASH;
+		}
+		else {
+			this->Path += tempPath[i];
+		}
+	}
 }
 
 void Volume::seekToHeadOfVolumeInfo(fstream& file) const
