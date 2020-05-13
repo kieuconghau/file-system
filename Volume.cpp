@@ -130,6 +130,8 @@ void Volume::navigate(Entry* f) {
 
 			// ============= EXIT =============
 			if (GetKeyState(0x1B) & 0x8000) {
+				while ((GetAsyncKeyState(0x1B) & 0x8000)) {};
+
 				GUI::esc = true;
 			}
 

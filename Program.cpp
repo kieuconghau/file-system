@@ -180,6 +180,8 @@ void Program::homeNavigate() {
 
 			// ============= EXIT =============
 			if (GetKeyState(0x1B) & 0x8000) {
+				while ((GetAsyncKeyState(0x1B) & 0x8000)) {};
+
 				back = true;
 			}
 
