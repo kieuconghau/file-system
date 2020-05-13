@@ -185,14 +185,29 @@ void Import(Volume &volume, string new_file_path) {
 
 			parent_folder_path = folder_path_queue.front() + "\\*";
 			folder_path_queue.pop();
+			
+			// Every folder always contains two special subdirectories:
+			// "." (which refers to the current directory)
+			// and ".." (which refers to the parent directory).
+			// For some reason, the file finding function in WinAPI
+			// when searching for files in a folder
+			// will always find these two special directories first.
+			// So, when we've found these two directories, we have to
+			// ignore them.
 
+			// Find the "." directory, and then ignore it.
 			hFile = FindFirstFileA(parent_folder_path.c_str(), &ffd);
-
-			// If FindFirstFileA func can't find any file
-			// (in other words, this "directory tree" has
-			// just an empty folder at the root).
 			if (hFile == INVALID_HANDLE_VALUE) continue;
 
+			// Find the ".." directory, and then ignore it.
+			if (FindNextFileA(hFile, &ffd) == 0) continue;
+
+			// Now we can find the first REAL file in the current folder.
+
+			// If the finding function can't find any file
+			// (in other words, this folder is empty),
+			// we can continue with the next folder in the queue.
+			if (FindNextFileA(hFile, &ffd) == 0) continue;
 			do {
 
 				string file_path = parent_folder_path.substr(
@@ -333,7 +348,7 @@ void Import(Volume &volume, string new_file_path) {
 	}
 
 	// Write entry (or entries) of the new file(s).
-	for (size_t i = 0; i < file_data_vector.size(); i++) {
+	for (size_t i = 0; i < file_entry_vector.size(); i++) {
 		volume.stream.write(file_entry_vector[i].entry,
 			file_entry_vector[i].entry_size);
 	}
