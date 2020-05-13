@@ -5,11 +5,8 @@
 #include <iomanip>
 #include <conio.h>
 
-#define W 1050
-#define H 572
-
 #define w 123
-#define h 33
+#define h 32
 
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 #define PBWIDTH 60

@@ -5,11 +5,6 @@
 int main() {
 	srand((int)time(0));
 
-	FixConsoleWindow();
-	FixSizeWindow(123, 50);
-	
-	
-
 	Program fileSystem;
 	fileSystem.run();
 

@@ -2,7 +2,8 @@
 
 Program::Program()
 {
-	//GUI::setWindows(W, H);
+	FixConsoleWindow();
+	FixSizeWindow(123, 200);
 	this->Vol = nullptr;
 }
 

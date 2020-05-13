@@ -115,7 +115,7 @@ void FixSizeWindow(int width, int height) {
     _SMALL_RECT Rect;
     Rect.Top = 0;
     Rect.Left = 0;
-    Rect.Bottom = height  - 19;
+    Rect.Bottom = height  - 169; // 200 - 169 la hien thi duoc 32 dong, scroll xuong thi duoc 200 dong
     Rect.Right = width - 1;
 
     HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);      // Get Handle
