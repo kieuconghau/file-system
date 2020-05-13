@@ -6,7 +6,7 @@
 // [Data of old files] - [Entries of old files] - [Volume Info Area]
 // * After:
 // [Data of old files] - [Data of the new file(s)] - [Entries of old files]
-// - [Entry (or entries) of the new file(s)] - [Volume Info Area]
+// - [Entry (or entries) of the new file(s)] - [Volume Info Area (updated)]
 
 // There are 3 steps to import a new file (or new files) to a volume:
 // * Step 1: Store the info and data of the new file(s) into RAM.
@@ -14,6 +14,8 @@
 // Entry Table - which is containing entries of old files,
 // and Volume Info Area of the volume into some buffer
 // to move them later on.
+// (UPDATED: We don't need to store the Volume Info Area.
+// It will be rewritten using the data in the program instead.)
 // * Step 3: In the volume, overwrite the content
 // from the end of [Data of old files] to the end of volume
 // by some new content. Those new content is a bundle of:
@@ -22,7 +24,7 @@
 // stored earlier)
 // - [Entry (or entries) of the new file(s)] (consisting of
 // the new file's (or new files') info)
-// - [Volume Info Area]"
+// - [Volume Info Area (updated)]"
 // (see the comparison above if you don't understand).
 // During the process of writing the bundle, we'll also update the info
 // of the volume in Volume Info Area.
@@ -242,7 +244,7 @@ void Import(Volume &volume, string new_file_path) {
 
 	vector<FileData> file_data_vector;
 
-	fstream file_stream;
+	ifstream file_stream;
 
 	for (size_t i = 0; i < file_entry_vector.size(); i++) {
 
@@ -290,14 +292,6 @@ void Import(Volume &volume, string new_file_path) {
 		volume.stream.read(entry_table, volume.entry_table_size);
 
 	}
-	else {
-		volume.stream.seekg(volume.volume_info_area_offset);
-	}
-
-	// Now the stream's pointer is at the beginning of Volume Info Area.
-	// Store the content of Volume Info Area into a char array.
-	char* volume_info_area = new char[volume.volume_info_area_size];
-	volume.stream.read(volume_info_area, volume.volume_info_area_size);
 
 	// Step 3:
 
@@ -310,9 +304,8 @@ void Import(Volume &volume, string new_file_path) {
 	else {	// If the volume is empty
 
 		// Set volume stream's pointer
-		// to the beginning of Volume Info Area
-		// (which is also the beginning of the volume).
-		volume.stream.seekp(volume.volume_info_area_offset);
+		// to the beginning of the volume.
+		volume.stream.seekp(0, ios::beg);
 	}
 
 	// Write a bundle of
@@ -335,7 +328,9 @@ void Import(Volume &volume, string new_file_path) {
 
 	// Write entries of the old files (which is the old
 	// Entry Table).
-	volume.stream.write(entry_table, volume.entry_table_size);
+	if (entry_table != NULL) {
+		volume.stream.write(entry_table, volume.entry_table_size);
+	}
 
 	// Write entry (or entries) of the new file(s).
 	for (size_t i = 0; i < file_data_vector.size(); i++) {
@@ -351,7 +346,12 @@ void Import(Volume &volume, string new_file_path) {
 	volume.volume_info_area_offset = volume.stream.tellp();
 
 	// Write the Volume Info Area
-	volume.stream.write(volume_info_area, volume.volume_info_area_size);
+	char signature[5] = "THN ";
+	volume.stream.write(signature, 4);
+	volume.stream.write((char*)&volume.entry_table_size,
+		sizeof(volume.entry_table_size));
+	volume.stream.write((char*)&volume.entry_table_offset,
+		sizeof(volume.entry_table_offset));
 
 	// Update the "empty" state of the volume
 	if (volume.is_empty == true) {
@@ -379,7 +379,4 @@ void Import(Volume &volume, string new_file_path) {
 	if (entry_table != NULL) {
 		delete[] entry_table;
 	}
-
-	delete[] volume_info_area;
-
 }

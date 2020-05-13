@@ -15,9 +15,8 @@ struct Volume {
 					// the Volume Info Area.
 
 	int volume_info_area_offset;
-	int volume_info_area_size;
-	int entry_table_offset;
-	int entry_table_size;
+	uint32_t entry_table_size;
+	uint32_t entry_table_offset;
 };
 
 // Placeholder struct

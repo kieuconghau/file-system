@@ -14,31 +14,42 @@ int main() {
 		return 1;
 	}
 
-	int empty;
-	cout << "Is the volume empty?" << endl;
-	cin >> empty;
-	if (empty == 0) {
-		volume.is_empty = false;
+	char signature[4];
+	
+	volume.stream.seekg(0, ios::beg);
+	do {
+		cout << "Offset: " << volume.stream.tellg() << endl;
+		volume.stream.read(signature, sizeof(signature));
+		volume.stream.seekg(- (int)sizeof(signature) + 1, ios::cur);
+	} while ((signature[0] != 'T' || signature[1] != 'H'
+		|| signature[2] != 'N' || signature[3] != ' ')
+		&& volume.stream.eof() == false);
+
+	if ((signature[0] != 'T' || signature[1] != 'H'
+		|| signature[2] != 'N' || signature[3] != ' ')) {
+		cout << "Not a volume" << endl;
+		return 2;
 	}
-	else {
+
+	volume.stream.seekg(-1, ios::cur);
+	volume.volume_info_area_offset = volume.stream.tellg();
+
+	volume.stream.seekg(sizeof(signature), ios::cur);
+	volume.stream.read((char*)&volume.entry_table_size,
+		sizeof(volume.entry_table_size));
+
+	volume.stream.read((char*)&volume.entry_table_offset,
+		sizeof(volume.entry_table_offset));
+
+	if (volume.entry_table_offset == UINT32_MAX) {
 		volume.is_empty = true;
 	}
-
-	cout << "Volume Info Area offset: ";
-	cin >> volume.volume_info_area_offset;
-
-	cout << "Volume Info Area size: ";
-	cin >> volume.volume_info_area_size;
-
-	cout << "Entry Table offset: ";
-	cin >> volume.entry_table_offset;
-
-	cout << "Entry Table size: ";
-	cin >> volume.entry_table_offset;
+	else {
+		volume.is_empty = false;
+	}
 
 	string new_file_path;
 	cout << "Importing file path: ";
-	cin.ignore();
 	getline(cin, new_file_path);
 
 	Import(volume, new_file_path);
