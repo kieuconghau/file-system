@@ -7,16 +7,26 @@ Volume::Volume() : VolumeInfo(), EntryTable()
 
 Volume::~Volume() {}
 
-void Volume::create(string const& volumeFilePath)
+bool Volume::create(string const& volumeFilePath)
 {
 	this->Path = volumeFilePath;
+
+	// Check if this file exists, if yes, we cannot create a volume file with this name
+	fstream tempFile(this->Path, ios_base::in);
+	if (tempFile.is_open()) {
+		tempFile.close();
+		return false;
+	}
 
 	fstream file(this->Path, ios_base::out);
 	if (file.is_open()) {
 		file.clear();
 		this->VolumeInfo.write(file);
+		file.close();
+		return true;
 	}
-	file.close();
+
+	return false;
 }
 
 void Volume::open(string const& volumeFilePath)

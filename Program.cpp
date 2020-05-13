@@ -29,6 +29,13 @@ void Program::openVolume()
 	}
 	else {
 		this->closeVolume();
+		
+		setColor(14, 0);
+		cout << endl;
+		cout << "Program: Cannot open this volume." << endl << endl;
+
+		setColor(15, 0);
+		system("pause");
 	}
 }
 
@@ -40,7 +47,24 @@ void Program::createVolume()
 	cout << "Input path: ";
 	getline(cin, volumeFilePath);
 
-	this->Vol->create(volumeFilePath);
+	if (this->Vol->create(volumeFilePath)) {
+		setColor(10, 0);
+		cout << endl;
+		cout << "Program: The new volume is created successfully!" << endl << endl;
+		
+		setColor(15, 0);
+		system("pause");
+	}
+	else {
+		setColor(14, 0);
+		cout << endl;
+		cout << "Program: Cannot create a new volume." << endl << endl;
+		cout << "         This path does not exist OR it is taken." << endl << endl;
+		cout << "         Please choose another path." << endl << endl;
+		
+		setColor(15, 0);
+		system("pause");
+	}
 
 	this->closeVolume();
 }

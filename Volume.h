@@ -13,7 +13,7 @@ public:
 	~Volume();
 
 	bool isVolumeFile(string const& volumeFilePath);
-	void create(string const& volumeFilePath);
+	bool create(string const& volumeFilePath);
 	void open(string const& volumeFilePath);
 
 private:
