@@ -64,36 +64,15 @@ void sleep(int x) {
     std::this_thread::sleep_for(std::chrono::milliseconds(x));
 }
 
-unsigned int SHF(string input) {
-    unsigned int hashcode = 5674356;
-    unsigned int hash;
-
-    for (int i = 0; i < input.length(); i++) {
-        hash = hash ^ (input[i]);
-        hash = hash * hashcode;
-    }
-
-    return hash;
-}
-
-string toHex(unsigned int input) {
-    string hexhash;
-    stringstream hexstream;
-    hexstream << hex << input;
-    hexhash = hexstream.str();
-    std::transform(hexhash.begin(), hexhash.end(), hexhash.begin(), ::toupper);
-    return hexhash;
-}
-
 string addSalt(string pw) {
     uint8_t salt[3] = { 0x4E , 0x48 ,0x54 };
 
+    // Random positon of salt
     int r1 = rand() % (pw.length());
     int r2 = rand() % (pw.length());
     int r3 = rand() % (pw.length());
 
-    cout << r1 << " " << r2 << " " << r3 << endl;
-
+    // XOR with salt
     pw[r1] = pw[r1] ^ salt[0];
     pw[r2] = pw[r2] ^ salt[1];
     pw[r3] = pw[r3] ^ salt[2];
@@ -104,7 +83,7 @@ string addSalt(string pw) {
 string addPepper(string pw) {
     char pepper = rand() % (255 + 1);
     
-    pw += pepper;
+    pw = pw + pepper;
 
     return pw;
 }

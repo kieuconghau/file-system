@@ -28,9 +28,6 @@ void sleep(int x);
 string addSalt(string pw);
 string addPepper(string pw);
 
-unsigned int SHF(string input);
-string toHex(unsigned int input);
-
 /*
 Name         | Value
 			 |
