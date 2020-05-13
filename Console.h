@@ -6,8 +6,6 @@
 #include <thread>
 #include <sstream>
 #include <algorithm>
-#include <stdlib.h>
-#include <time.h>
 using namespace std;
 
 enum class COLOR {
@@ -29,7 +27,6 @@ enum class COLOR {
 	WHITE
 };
 
-
 void printSpace(int n);
 string numCommas(int value);
 
@@ -42,9 +39,7 @@ unsigned int whereY();
 void sleep(int x);
 
 void setColor(COLOR textColor, COLOR bgColor);
-void showConsoleCursor(bool showFlag);
 
-// Add pepper
 string addSalt(string pw);
 string addPepper(string pw);
 
@@ -68,3 +63,4 @@ Light Magenta|   13
 Yellow       |   14
 White        |   15
 */
+
