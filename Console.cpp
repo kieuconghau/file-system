@@ -100,3 +100,25 @@ string addPepper(string pw) {
     return pw;
 }
 
+void FixConsoleWindow() {
+    HWND consoleWindow = GetConsoleWindow();
+    LONG style = GetWindowLong(consoleWindow, GWL_STYLE);
+    style = style & ~(WS_MAXIMIZEBOX) & ~(WS_THICKFRAME);
+    SetWindowLong(consoleWindow, GWL_STYLE, style);
+}
+
+void FixSizeWindow(int width, int height) {
+    _COORD coord;
+    coord.X = width;
+    coord.Y = height;
+
+    _SMALL_RECT Rect;
+    Rect.Top = 0;
+    Rect.Left = 0;
+    Rect.Bottom = height  - 19;
+    Rect.Right = width - 1;
+
+    HANDLE Handle = GetStdHandle(STD_OUTPUT_HANDLE);      // Get Handle
+    SetConsoleScreenBufferSize(Handle, coord);            // Set Buffer Size
+    SetConsoleWindowInfo(Handle, TRUE, &Rect);            // Set Window Size
+}

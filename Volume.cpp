@@ -173,6 +173,7 @@ void Volume::updateMenu(Entry* entry)
 	cout << " " << entry->getPath(); printSpace(123 - entry->getPath().size() - 7);
 
 	setColor(0, 7);
+	gotoXY(0, 1);
 	cout << " Name"; printSpace(42); cout << " | "; printSpace(16); cout << "Size | Type"; printSpace(6); cout << " | Modified"; printSpace(16); cout << " |  Password " << endl;
 	setColor(15, 0);
 

@@ -93,3 +93,28 @@ void GUI::printProgress(string content, double percentage) {
     fflush(stdout);
 }
 
+void GUI::instructionScreen() {
+
+    gotoXY(0, 0);  cout << ".NHT INSTRUCTION";
+
+    gotoXY(0, 2);  cout << "* Use ARROW 'UP' and ARROW 'DOWN' to move upward and downward between lines. ";
+
+    gotoXY(0, 4);  cout << "* When you open an existing volume successfully these are functional key you should know:";
+
+    gotoXY(0, 6);  cout << "\t[ENTER]:        To enter a folder.";
+
+    gotoXY(0, 8);  cout << "\t[P]:            To set/reset password for a folder or file.";
+    gotoXY(0, 9);  cout << "\t                If a folder/file has password, it requires password to do any manipulation on it.";
+
+    gotoXY(0, 11); cout << "\t[I}:            To import a file/folder from a given path.";
+
+    gotoXY(0, 13); cout << "\t[E]:            To export a file/folder from a given path.";
+
+    gotoXY(0, 15); cout << "\t[DEL] or [D]:   To delete a file or a folder";
+    gotoXY(0, 16); cout << "\t                If you delete a folder which has a locked file/folder inside,";
+    gotoXY(0, 17); cout << "\t                It won't be deleted totally and still contain the locked files/folders inside.";
+
+    gotoXY(0, 19); cout << "\t[F1]:           Show this instruction.";
+
+    gotoXY(0, 21);  system("pause");
+}

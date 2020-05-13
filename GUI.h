@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <conio.h>
 
-#define W 1017
+#define W 1050
 #define H 572
 
 #define w 123
@@ -26,6 +26,7 @@ public:
 	static void reset();
 	static string enterPassword();
 	static void printProgress(string content, double percentage);
+	static void instructionScreen();
 
 private:
 	static string hidePassword();

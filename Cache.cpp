@@ -22,6 +22,12 @@ bool Cache::isEmpty() const
 
 void Cache::add(string const& volumeFilePath)
 {
+	for (string str : this->VolumePathList) {
+		if (str == volumeFilePath) {
+			return;
+		}
+	}
+
 	this->VolumePathList.push_back(volumeFilePath);
 
 	fstream file(this->Path, ios_base::app);

@@ -2,7 +2,7 @@
 
 Program::Program()
 {
-	GUI::setWindows(W, H);
+	//GUI::setWindows(W, H);
 	this->Vol = nullptr;
 }
 
@@ -73,6 +73,8 @@ void Program::openVolume()
 	this->initializeVolume(str);
 
 	if (this->Vol->isVolumeFile()) {
+		this->Cache.add(this->Vol->getPath());
+
 		this->Vol->open();
 	}
 	else {
@@ -191,28 +193,6 @@ void Program::homeScreen() {
 	setColor(15, 0);
 }
 
-void Program::instructionScreen() {
-
-
-	gotoXY(0, 0);  cout << ".NHT INSTRUCTION";
-
-	gotoXY(0, 2);  cout << "* Use ARROW 'UP' and ARROW 'DOWN' to move upward and downward between lines. ";
-
-	gotoXY(0, 4);  cout << "* When you open an existed volume successfully these are functional key you should know:";
-
-	gotoXY(0, 6);  cout << "\t\t[ENTER]:        To enter a folder.";
-
-	gotoXY(0, 8);  cout << "\t\t[P]:            To set password for a folder or file.";
-	gotoXY(0, 9);  cout << "\t\t                If a folder/file has password, it requires password to access(folder) or deletion.";
-	gotoXY(0, 10); cout << "\t\t                If you delete a folder which has a locked file/folder inside,";
-
-
-	gotoXY(8, 11); cout << "\t\t[DEL] or [D]:   To delete a file or a folder";
-
-
-	system("pause");
-}
-
 void Program::homeNavigate() {
 	clrscr();
 	GUI::clearBackground();
@@ -246,7 +226,7 @@ void Program::homeNavigate() {
 					this->openVolume();
 					break;
 				case 2:
-					this->instructionScreen();
+					GUI::instructionScreen();
 					break;
 				case 3:
 					back = true;

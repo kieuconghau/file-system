@@ -37,6 +37,8 @@ void gotoXY(const unsigned int& x, const unsigned int& y);
 unsigned int whereX();
 unsigned int whereY();
 void sleep(int x);
+void FixConsoleWindow();
+void FixSizeWindow(int width, int height);
 
 void setColor(COLOR textColor, COLOR bgColor);
 
