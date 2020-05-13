@@ -87,13 +87,13 @@ void Program::homeScreen() {
 	
 	setColor(14, 0);
 	if (GUI::line == 0) setColor(15, 1);
-	gotoXY(48, 25); cout << " 1.>  Create a new volume   ";	setColor(15, 0);
+	gotoXY(48, 25); cout << " 1.>   Create a new volume   ";	setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 1) setColor(15, 1);
-	gotoXY(48, 26); cout << " 2.> Open an existed volume "; setColor(15, 0);
+	gotoXY(48, 26); cout << " 2.> Open an existing volume "; setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 2) setColor(15, 1);
-	gotoXY(48, 27); cout << " 3.>         Exit           "; setColor(15, 0);
+	gotoXY(48, 27); cout << " 3.>          Exit           "; setColor(15, 0);
 
 	setColor(15, 0);
 }
