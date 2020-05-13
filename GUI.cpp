@@ -92,3 +92,4 @@ void GUI::printProgress(string content, double percentage) {
     setColor(15, 0);
     fflush(stdout);
 }
+
