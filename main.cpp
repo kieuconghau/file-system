@@ -1,5 +1,4 @@
 #include "Program.h"
-#include "GUI.h"
 #include <stdint.h>
 
 int main() {
@@ -10,4 +9,3 @@ int main() {
 
 	return 0;
 }
-

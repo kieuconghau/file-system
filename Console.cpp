@@ -4,6 +4,18 @@ void setColor(int textColor, int bgColor) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (textColor + (bgColor * 16)));
 }
 
+void printTextAtMid(string const& text, size_t const& left, size_t const& right)
+{
+    gotoXY((right - left + text.length()) / 2, whereY());
+    cout << text;
+}
+
+
+void setColor(COLOR textColor, COLOR bgColor)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ((size_t)textColor + ((size_t)bgColor * 16)));
+}
+
 void clrscr()
 {
     CONSOLE_SCREEN_BUFFER_INFO	csbiInfo;

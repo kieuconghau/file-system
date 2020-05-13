@@ -18,31 +18,121 @@ void Program::run()
 
 void Program::openVolume()
 {
-	this->Vol = new Volume();
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	cout << "::::: OPEN A VOLUME :::::";
+	cout << "\n\n";
 
-	string volumeFilePath;
-	cout << "Input path: ";
-	getline(cin, volumeFilePath);
+	// Show list of existing volume path in cache
+	setColor(COLOR::WHITE, COLOR::BLACK);
+	vector<string> volumePathList = this->Cache.getVolumePathList();
+	for (size_t i = 1; i <= volumePathList.size(); ++i) {
+		cout << " <" << i << "> ";
+		gotoXY(7, whereY());
+		cout << volumePathList[i - 1] << "\n";
+	}
+	cout << "\n";
 
-	if (this->Vol->isVolumeFile(volumeFilePath)) {
-		this->Vol->open(volumeFilePath);
+	// Input
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	if (this->Cache.isEmpty()) {
+		cout << "Program: Input a path." << "\n";
 	}
 	else {
-		this->closeVolume();
+		cout << "Program: Input a path (or <i>, with i is the index of the above list)." << "\n";
+	}
+	cout << "\n" << "Your input: ";
+
+	setColor(COLOR::WHITE, COLOR::BLACK);
+	string str;
+	getline(cin, str);
+
+	// If the input is <i>, change the content of str to the correspoding volume path
+	bool openVolumeInCache = false;
+
+	if (str.length() != 0 && str.front() == '<' && str.back() == '>') {
+		size_t indexVolume = 0;
+
+		for (size_t i = 1; i < str.length() - 1; ++i) {
+			if (str[i] >= '0' && str[i] <= '9') {
+				indexVolume *= 10;
+				indexVolume += str[i] - '0';
+			}
+			else {
+				indexVolume = 0;
+				break;
+			}
+		}
+
+		if (indexVolume >= 1 && indexVolume <= volumePathList.size()) {
+			openVolumeInCache = true;
+			str = volumePathList[indexVolume - 1];
+		}
+	}
+
+	// Open volume
+	this->initializeVolume(str);
+
+	if (this->Vol->isVolumeFile()) {
+		this->Vol->open();
+	}
+	else {
+		setColor(14, 0);
+		cout << endl;
+		cout << "Program: Cannot open this volume." << endl << endl;
+
+		setColor(15, 0);
+		system("pause");
+	}
+
+	this->closeVolume();
+
+	if (openVolumeInCache) {
+		this->Cache.update();
 	}
 }
 
 void Program::createVolume()
 {
-	this->Vol = new Volume();
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	cout << "::::: CREATE A VOLUME :::::";
+	cout << "\n\n";
 
+	cout << "Program: Input a path." << "\n\n";
+	cout << "Your input: ";
+
+	setColor(COLOR::WHITE, COLOR::BLACK);
 	string volumeFilePath;
-	cout << "Input path: ";
 	getline(cin, volumeFilePath);
 
-	this->Vol->create(volumeFilePath);
+	this->initializeVolume(volumeFilePath);
+
+	if (this->Vol->create()) {
+		this->Cache.add(this->Vol->getPath());
+
+		setColor(10, 0);
+		cout << endl;
+		cout << "Program: The new volume is created successfully!" << endl << endl;
+		
+		setColor(15, 0);
+		system("pause");
+	}
+	else {
+		setColor(14, 0);
+		cout << endl;
+		cout << "Program: Cannot create a new volume." << endl << endl;
+		cout << "         This path does not exist OR it is taken." << endl << endl;
+		cout << "         Please choose another path." << endl << endl;
+		
+		setColor(15, 0);
+		system("pause");
+	}
 
 	this->closeVolume();
+}
+
+void Program::initializeVolume(string const& volumeFilePath)
+{
+	this->Vol = new Volume(volumeFilePath);
 }
 
 void Program::closeVolume()
@@ -58,8 +148,8 @@ void Program::homeScreen() {
 	gotoXY(0, 2); cout << "// fit - Operating System";
 	gotoXY(0, 3); cout << "// Project 21.";
 	gotoXY(0, 4); cout << "// From: ";
-	gotoXY(0, 5); cout << "//       Nguyen Hoang Nhan - 18127xxx";
-	gotoXY(0, 6); cout << "//       Kieu Cong Hau     - 18127xxx";
+	gotoXY(0, 5); cout << "//       Nguyen Hoang Nhan - 18127017";
+	gotoXY(0, 6); cout << "//       Kieu Cong Hau     - 18127259";
 	gotoXY(0, 7); cout << "//       Tran Thanh Tam    - 18127268";
 	gotoXY(0, 8); cout << "//";
 
@@ -87,13 +177,13 @@ void Program::homeScreen() {
 	
 	setColor(14, 0);
 	if (GUI::line == 0) setColor(15, 1);
-	gotoXY(48, 25); cout << " 1.>  Create a new volume   ";	setColor(15, 0);
+	gotoXY(48, 25); cout << " 1.>   Create a new volume   ";	setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 1) setColor(15, 1);
-	gotoXY(48, 26); cout << " 2.> Open an existed volume "; setColor(15, 0);
+	gotoXY(48, 26); cout << " 2.> Open an existing volume "; setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 2) setColor(15, 1);
-	gotoXY(48, 27); cout << " 3.>         Exit           "; setColor(15, 0);
+	gotoXY(48, 27); cout << " 3.>          Exit           "; setColor(15, 0);
 
 	setColor(15, 0);
 }
@@ -156,6 +246,8 @@ void Program::homeNavigate() {
 
 			// ============= EXIT =============
 			if (GetKeyState(0x1B) & 0x8000) {
+				while ((GetAsyncKeyState(0x1B) & 0x8000)) {};
+
 				back = true;
 			}
 

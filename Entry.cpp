@@ -62,7 +62,7 @@ bool Entry::isFolder() const
 	if (this->Path == "") {
 		throw "Logic Error";
 	}
-	return Path.back() == SLASH;
+	return this->Path.back() == SLASH;
 }
 
 bool Entry::isLocked() const
@@ -92,7 +92,7 @@ bool Entry::hasParent(Entry const* parent) const
 		++i;
 	}
 
-	while (i < this->PathLen - this->isFolder()) {
+	while (i < (size_t)(this->PathLen - this->isFolder())) {
 		if (this->Path[i] == SLASH) {
 			return false;
 		}

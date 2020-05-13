@@ -10,13 +10,18 @@ class Volume
 {
 public:
 	Volume();
+	Volume(string const& volumeFilePath);
 	~Volume();
 
-	bool isVolumeFile(string const& volumeFilePath);
-	void create(string const& volumeFilePath);
-	void open(string const& volumeFilePath);
+	bool isVolumeFile();
+	bool create();
+	void open();
+
+	string getPath() const;
 
 private:
+	void initialize(string const& volumeFilePath);
+
 	void seekToHeadOfVolumeInfo(fstream& file) const;
 	void seekToHeadOfEntryTable(fstream& file) const;
 

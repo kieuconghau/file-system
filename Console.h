@@ -10,7 +10,24 @@
 #include <time.h>
 
 
-using namespace std;
+enum class COLOR {
+	BLACK = 0,
+	BLUE,
+	GREEN,
+	CYAN,
+	RED,
+	MAGENTA,
+	BROWN,
+	LIGHT_GRAY,
+	DARK_GRAY,
+	LIGHT_BLUE,
+	LIGHT_GREEN,
+	LIGHT_CYAN,
+	LIGHT_RED,
+	LIGHT_MAGENTA,
+	YELLOW,
+	WHITE
+};
 
 
 void printSpace(int n);
@@ -27,6 +44,9 @@ void sleep(int x);
 // Add pepper
 string addSalt(string pw);
 string addPepper(string pw);
+
+void setColor(COLOR textColor, COLOR bgColor);
+void showConsoleCursor(bool showFlag);
 
 /*
 Name         | Value
