@@ -6,6 +6,8 @@
 #include <thread>
 #include <sstream>
 #include <algorithm>
+#include <stdlib.h>
+#include <time.h>
 using namespace std;
 
 enum class COLOR {
@@ -27,6 +29,7 @@ enum class COLOR {
 	WHITE
 };
 
+
 void printSpace(int n);
 string numCommas(int value);
 
@@ -41,9 +44,9 @@ void sleep(int x);
 void setColor(COLOR textColor, COLOR bgColor);
 void showConsoleCursor(bool showFlag);
 
-// Simple Hash Function
-unsigned int SHF(string input);
-string toHex(unsigned int input);
+// Add pepper
+string addSalt(string pw);
+string addPepper(string pw);
 
 /*
 Name         | Value

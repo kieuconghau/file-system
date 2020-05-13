@@ -23,4 +23,5 @@ private:
 	
 	void homeScreen();
 	void homeNavigate();
+	void instructionScreen();
 };
