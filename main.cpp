@@ -1,5 +1,4 @@
 #include "Program.h"
-#include "GUI.h"
 
 int main() {
 	Program fileSystem;
