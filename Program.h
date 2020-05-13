@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Volume.h"
+#include "Cache.h"
 
 class Program
 {
@@ -12,11 +13,15 @@ public:
 
 private:
 	Volume* Vol;
+	Cache Cache;
 private:
 	void openVolume();
+	void openVolumeInCache();
 	void createVolume();
+	
+	void initializeVolume();
 	void closeVolume();
+	
 	void homeScreen();
 	void homeNavigate();
 };
-

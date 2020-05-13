@@ -18,7 +18,7 @@ void Program::run()
 
 void Program::openVolume()
 {
-	this->Vol = new Volume();
+	this->initializeVolume();
 
 	string volumeFilePath;
 	cout << "Input path: ";
@@ -28,8 +28,6 @@ void Program::openVolume()
 		this->Vol->open(volumeFilePath);
 	}
 	else {
-		this->closeVolume();
-		
 		setColor(14, 0);
 		cout << endl;
 		cout << "Program: Cannot open this volume." << endl << endl;
@@ -37,11 +35,21 @@ void Program::openVolume()
 		setColor(15, 0);
 		system("pause");
 	}
+
+	this->closeVolume();
+}
+
+void Program::openVolumeInCache()
+{
+	this->initializeVolume();
+
+
+	this->closeVolume();
 }
 
 void Program::createVolume()
 {
-	this->Vol = new Volume();
+	this->initializeVolume();
 
 	string volumeFilePath;
 	cout << "Input path: ";
@@ -67,6 +75,11 @@ void Program::createVolume()
 	}
 
 	this->closeVolume();
+}
+
+void Program::initializeVolume()
+{
+	this->Vol = new Volume();
 }
 
 void Program::closeVolume()
