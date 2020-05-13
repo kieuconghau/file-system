@@ -81,17 +81,6 @@ void Volume::navigate(Entry* f) {
 			// ============= ENTER =============
 			if (GetKeyState(0x0D) & 0x8000) {
 				while ((GetAsyncKeyState(VK_RETURN) & 0x8000)) {};
-
-				/*
-				if (line != 0) {
-					if (f->getEntryInList(line - 1)->isFolder())
-						Navigation(f->getEntryInList(line - 1));
-				}
-				else {
-					back = true;
-					reset();
-				}
-				*/
 				this->enterFolder(f, back);
 			}
 

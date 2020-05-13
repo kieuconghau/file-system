@@ -18,5 +18,6 @@ private:
 	void closeVolume();
 	void homeScreen();
 	void homeNavigate();
+	void instructionScreen();
 };
 

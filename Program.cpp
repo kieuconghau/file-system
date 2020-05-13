@@ -83,7 +83,8 @@ void Program::homeScreen() {
 	gotoXY(36, 26); cout << "||                                                ||" << endl;
 	gotoXY(36, 27); cout << "||                                                ||" << endl;
 	gotoXY(36, 28); cout << "||                                                ||" << endl;
-	gotoXY(36, 29); cout << " *================================================*" << endl;
+	gotoXY(36, 29); cout << "||                                                ||" << endl;
+	gotoXY(36, 30); cout << " *================================================*" << endl;
 	
 	setColor(14, 0);
 	if (GUI::line == 0) setColor(15, 1);
@@ -93,9 +94,33 @@ void Program::homeScreen() {
 	gotoXY(48, 26); cout << " 2.> Open an existed volume "; setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 2) setColor(15, 1);
-	gotoXY(48, 27); cout << " 3.>         Exit           "; setColor(15, 0);
-
+	gotoXY(48, 27); cout << " 3.>      Instruction       "; setColor(15, 0);
+	setColor(14, 0);
+	if (GUI::line == 3) setColor(15, 1);
+	gotoXY(48, 28); cout << " 4.>         Exit           "; setColor(15, 0);
 	setColor(15, 0);
+}
+
+void Program::instructionScreen() {
+
+
+	gotoXY(0, 0);  cout << ".NHT INSTRUCTION";
+
+	gotoXY(0, 2);  cout << "* Use ARROW 'UP' and ARROW 'DOWN' to move upward and downward between lines. ";
+
+	gotoXY(0, 4);  cout << "* When you open an existed volume successfully these are functional key you should know:";
+
+	gotoXY(0, 6);  cout << "\t\t[ENTER]:        To enter a folder.";
+
+	gotoXY(0, 8);  cout << "\t\t[P]:            To set password for a folder or file.";
+	gotoXY(0, 9);  cout << "\t\t                If a folder/file has password, it requires password to access(folder) or deletion.";
+	gotoXY(0, 10); cout << "\t\t                If you delete a folder which has a locked file/folder inside,";
+
+
+	gotoXY(8, 11); cout << "\t\t[DEL] or [D]:   To delete a file or a folder";
+
+
+	system("pause");
 }
 
 void Program::homeNavigate() {
@@ -131,6 +156,9 @@ void Program::homeNavigate() {
 					this->openVolume();
 					break;
 				case 2:
+					this->instructionScreen();
+					break;
+				case 3:
 					back = true;
 					break;
 				}
@@ -142,16 +170,16 @@ void Program::homeNavigate() {
 			// ============= UP =============
 			if (GetKeyState(VK_UP) & 0x8000) {
 				if (GUI::line == 0) {
-					GUI::line = 2;
+					GUI::line = 3;
 				}
 				else GUI::line--;
-				GUI::line %= 3;
+				GUI::line %= 4;
 			}
 
 			// ============= DOWN =============
 			if (GetKeyState(VK_DOWN) & 0x8000) {
 				GUI::line++;
-				GUI::line %= 3;
+				GUI::line %= 4;
 			}
 
 			// ============= EXIT =============
