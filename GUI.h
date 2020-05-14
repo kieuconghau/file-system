@@ -22,6 +22,7 @@ public:
 	static void clearBackground();
 	static void reset();
 	static string enterPassword();
+	static void checkPassword(int i);
 	static void printProgress(string content, double percentage);
 	static void instructionScreen();
 

@@ -30,6 +30,7 @@ void GUI::reset() {
 }
 
 string GUI::hidePassword() {
+    setColor(COLOR::WHITE, COLOR::BLACK);
     string input;
     char temp;
     while (true) {
@@ -57,9 +58,16 @@ string GUI::hidePassword() {
 string GUI::enterPassword() {
     string pw, repw;
 
-    while (true) {
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 
+    gotoXY(0, 0); cout << "Program: LOGIN";
+
+    while (true) {
+        setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+
+        gotoXY(0, 2); 
         cout << "Password:  ";      pw   = GUI::hidePassword();      cout << endl;
+        setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
         cout << "Re-enter:  ";      repw = GUI::hidePassword();      cout << endl;
 
         if (pw.compare(repw) == 0) {
@@ -68,11 +76,30 @@ string GUI::enterPassword() {
         else {
             clrscr();
             setColor(4, 0);
+            gotoXY(0, 0);
             cout << "Error: Password is not the same. " << endl;
             setColor(15, 0);
         }
     }
     return pw;
+}
+
+void GUI::checkPassword(int i) {
+    i = i % 3;
+
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(0, 5);
+    switch (i) {
+    case 0:
+        cout << "Verifing password  .      ";
+        break;
+    case 1:
+        cout << "Verifing password  .  .   ";
+        break;
+    case 2:
+        cout << "Verifing password  .  .  .";
+        break;
+    }
 }
 
 void GUI::printProgress(string content, double percentage) {

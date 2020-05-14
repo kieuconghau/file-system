@@ -2,7 +2,7 @@
 
 #include "Console.h"
 #include "SHA256.h"
-
+#include "GUI.h"
 #include <iostream>
 #include <vector>
 #include <fstream>

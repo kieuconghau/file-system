@@ -205,8 +205,8 @@ void Volume::enterFolder(Entry* parent, bool& back)
 		}
 		else {
 			setColor(4, 0);
-			cout << "Error: Invalid password. Access folder denied. ";
-			system("pause");
+			gotoXY(0, 5); cout << "Error: Invalid password. Access folder denied. ";
+			gotoXY(0, 7); system("pause");
 			setColor(15, 0);
 		}
 	}
@@ -231,10 +231,9 @@ void Volume::setPassword(Entry* f)
 			f->resetPassword();
 		}
 		else {
-			clrscr();
 			setColor(4, 0);
-			cout << "Error: Invalid password. Reset pasword denied. " << endl;
-			system("pause");
+			gotoXY(0, 5);  cout << "Error: Invalid password. Reset pasword denied. " << endl;
+			gotoXY(0, 7); system("pause");
 			setColor(15, 0);
 			return;
 		}
@@ -370,17 +369,16 @@ void Volume::deleteOnVolume(Entry* f) {
 
 	if (f->isLocked()) {
 		pw = GUI::enterPassword();
-		clrscr();
 
 		if (!f->checkPassword(pw)) {
 			setColor(12, 0);
-			cout << "Error: Invalid password. Deletion denied. " << endl;
-			cout << endl;
-			setColor(11, 0);
-			system("pause");
+			gotoXY(0, 5); cout << "Error: Invalid password. Deletion denied. " << endl;
+			gotoXY(0, 7);  system("pause");
 			setColor(15, 0);
 			return;
 		}
+
+		gotoXY(0, 5);
 	}
 
 	string name = f->getName();
@@ -389,11 +387,10 @@ void Volume::deleteOnVolume(Entry* f) {
 	cout << endl;
 	cout <<"         Type DELETE to confirm | else it will cancel." << endl;
 	cout << endl;
-	setColor(11, 0);
-	cout << "User:    ";
-	cin >> pw;
+	setColor(11, 0);  cout << "User:    ";
+	setColor(15, 0);  cin >> pw;
+	cout << endl;
 	setColor(15, 0);
-	clrscr();
 
 	if ((pw.compare("DELETE") == 0) || (pw.compare("delete") == 0)) {
 	
@@ -406,7 +403,7 @@ void Volume::deleteOnVolume(Entry* f) {
 			cout << "         To delete '" << name << "' totally, make sure that all files or folders stored in this folder have no password." << endl;
 		}
 		else {
-			setColor(10, 0);
+			setColor(11, 0);
 			cout << "Program:  '" << name << "' is deleted successfully. " << endl;
 		}
 		cout << endl;
@@ -416,7 +413,7 @@ void Volume::deleteOnVolume(Entry* f) {
 		GUI::reset();
 	}
 	else {
-		setColor(10, 0);
+		setColor(11, 0);
 		cout << "Program: Delete  '" << name << "' is canceled. " << endl;
 		cout << endl;
 		setColor(11, 0);

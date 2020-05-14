@@ -207,6 +207,8 @@ bool Entry::checkPassword(string pw) {
 
 	// Check 1st XOR
 	for (int i = 0; i < pw.length(); i++) {
+		GUI::checkPassword(i);
+
 		string toTEST_0 = pw;
 		toTEST_0[i] = toTEST_0[i] ^ salt[0];
 
