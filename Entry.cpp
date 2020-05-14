@@ -11,6 +11,9 @@ Entry::Entry()
 	this->Path			= "";
 	this->Password		= "";
 	this->Name			= "";
+	
+	this->FullPathOutside = "";
+	this->IsFolder = false;
 }
 
 Entry::Entry(Entry const& entry)
@@ -35,14 +38,7 @@ void Entry::read(fstream& file)
 	this->Password.resize(this->PasswordLen);
 	file.read((char*)this->Password.c_str(), this->PasswordLen);
 
-	size_t startPosOfName = 0;
-	for (int i = this->PathLen - 1 - this->isFolder(); i >= 0; --i) {
-		if (this->Path[i] == SLASH) {
-			startPosOfName = i + 1;
-			break;
-		}
-	}
-	this->Name = this->Path.substr(startPosOfName, this->PathLen - startPosOfName - this->isFolder());
+	this->initializeName();
 }
 
 void Entry::write(fstream& file) const
@@ -125,6 +121,16 @@ uint16_t Entry::getPasswordLen() const
 	return this->PasswordLen;
 }
 
+string Entry::getFullPathOutside() const
+{
+	return this->FullPathOutside;
+}
+
+bool Entry::getIsFolder() const
+{
+	return this->IsFolder;
+}
+
 Entry* Entry::add(Entry const& entry) { return nullptr; }
 
 void Entry::write(ofstream& file) const
@@ -146,14 +152,114 @@ vector<Entry*> Entry::getSubEntryList() const
 	return vector<Entry*>();
 }
 
-void Entry::seekToHeadOfData(fstream& file) const
+bool Entry::hasChildWithTheSameName(Entry const& entry) const
+{
+	return true;
+}
+
+void Entry::seekToHeadOfData_g(fstream& file) const
 {
 	file.seekg(this->OffsetData);
 }
 
-void Entry::seekToEndOfData(fstream& file) const
+void Entry::seekToHeadOfData_p(fstream& file) const
+{
+	file.seekp(this->OffsetData);
+}
+
+void Entry::seekToEndOfData_g(fstream& file) const
 {
 	file.seekg((uint64_t)this->OffsetData + (uint64_t)this->SizeData);
+}
+
+void Entry::seekToEndOfData_p(fstream& file) const
+{
+	file.seekp((uint64_t)this->OffsetData + (uint64_t)this->SizeData);
+}
+
+void Entry::getFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd,
+	string file_path, string file_name_in_volume,
+	uint32_t& insert_pos)
+{
+	// File last modification date and time.
+	FileTimeToDosDateTime(&ffd.ftLastWriteTime, &this->ModifiedDate,
+		&this->ModifiedTime);
+
+	// File size.
+	// If file size is not greater than (2^32 - 1)
+	// (which means nFileSizeHigh == 0), get
+	// file size in nFileSizeLow and store it.
+	if (ffd.nFileSizeHigh == 0) {
+		this->SizeData = ffd.nFileSizeLow;
+	}
+	// Else, just store file size as (2^32 - 1)
+	else {
+		this->SizeData = UINT32_MAX;
+	}
+
+	// File name length.
+	this->PathLen = file_name_in_volume.length();
+
+	// File password length.
+	this->PasswordLen = 0;
+
+	// File offset.
+	this->OffsetData = insert_pos;
+	insert_pos += this->SizeData;
+
+	// File name.
+	this->Path = file_name_in_volume;
+
+	this->FullPathOutside = file_path;
+
+	if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+		this->IsFolder = true;
+	}
+	else {
+		this->IsFolder = false;
+	}
+}
+
+void Entry::standardizeAfterImport(Entry* parent)
+{
+	this->standardizePath();
+	this->updatePathAfterImport(parent);
+	this->initializeName();
+}
+
+void Entry::initializeName()
+{
+	size_t startPosOfName = 0;
+	for (int i = this->PathLen - 1 - this->isFolder(); i >= 0; --i) {
+		if (this->Path[i] == SLASH) {
+			startPosOfName = i + 1;
+			break;
+		}
+	}
+	this->Name = this->Path.substr(startPosOfName, this->PathLen - startPosOfName - this->isFolder());
+}
+
+void Entry::standardizePath()
+{
+	string tempPath = "";
+
+	for (size_t i = 0; i < this->PathLen; ++i) {
+		if (this->Path[i] == '\\') {
+			tempPath += '/';
+		}
+		else {
+			tempPath += this->Path[i];
+		}
+	}
+
+	this->Path = tempPath;
+	this->PathLen = tempPath.length();
+}
+
+void Entry::updatePathAfterImport(Entry* parent)
+{
+	this->Path = parent->getPath() + this->Path;
+	this->PathLen = this->Path.length();
 }
 
 void Entry::display(bool selected) {

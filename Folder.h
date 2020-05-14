@@ -13,6 +13,7 @@ public:
 	Entry* add(Entry const& tempEntry) override;
 	void del(Entry* entry) override;
 	vector<Entry*> getSubEntryList() const override;
+	bool hasChildWithTheSameName(Entry const& entry) const override;
 
 	/* ============== BUU WRITE THIS ============== */
 	void display(bool selected);

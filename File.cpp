@@ -13,6 +13,11 @@ vector<Entry*> File::getSubEntryList() const
 	return vector<Entry*>();
 }
 
+bool File::hasChildWithTheSameName(Entry const& entry) const
+{
+	return true;
+}
+
 void File::display(bool selected) {
     if (selected) setColor(15, 1);
 

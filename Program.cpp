@@ -9,7 +9,10 @@ Program::Program()
 
 Program::~Program()
 {
-	delete this->Vol;
+	if (this->Vol != nullptr) {
+		delete this->Vol;
+		this->Vol = nullptr;
+	}
 }
 
 void Program::run()

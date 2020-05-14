@@ -9,6 +9,16 @@ VolumeInfo::VolumeInfo()
 
 VolumeInfo::~VolumeInfo() {}
 
+bool VolumeInfo::isEmptyVolume() const
+{
+	return this->SizeEntryTable == 0;
+}
+
+uint32_t VolumeInfo::getEntryTableOffset() const
+{
+	return this->OffsetEntryTable;
+}
+
 void VolumeInfo::write(fstream& file) const
 {
 	file.write((char*)&this->Signature, sizeof(this->Signature));
@@ -28,15 +38,19 @@ bool VolumeInfo::checkSignature(fstream& file) const
 	return this->Signature == 0x024E4854;
 }
 
-void VolumeInfo::seekToHeadOfEntryTable(fstream& file) const
+void VolumeInfo::seekToHeadOfEntryTable_g(fstream& file) const
 {
-	file.clear();
 	file.seekg(this->OffsetEntryTable);
 }
 
-bool VolumeInfo::isEndOfEntryTable(fstream& file) const
+void VolumeInfo::seekToHeadOfEntryTable_p(fstream& file) const
 {
-	return file.tellg() == this->OffsetEntryTable + this->SizeEntryTable;
+	file.seekp(this->OffsetEntryTable);
+}
+
+bool VolumeInfo::isEndOfEntryTable_g(fstream& file) const
+{
+	return file.tellg() == (this->OffsetEntryTable + this->SizeEntryTable);
 }
 
 void VolumeInfo::updateAfterDel(Entry const* entry)
@@ -48,4 +62,14 @@ void VolumeInfo::updateAfterDel(Entry const* entry)
 void VolumeInfo::updateAfterSetPassword(size_t const& oldPasswordLen, size_t const& newPasswordLen)
 {
 	this->SizeEntryTable += (newPasswordLen - oldPasswordLen);
+}
+
+void VolumeInfo::updateOffsetEntryTable(uint32_t const& newOffsetEntryTable)
+{
+	this->OffsetEntryTable = newOffsetEntryTable;
+}
+
+void VolumeInfo::updateSizeEntryTable(uint32_t const& newTailPosEntryTable)
+{
+	this->SizeEntryTable = newTailPosEntryTable - this->OffsetEntryTable;
 }

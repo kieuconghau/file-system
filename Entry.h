@@ -32,10 +32,13 @@ public:
 	uint32_t getSizeData() const;
 	uint32_t getSize() const;
 	uint16_t getPasswordLen() const;
+	string getFullPathOutside() const;
+	bool getIsFolder() const;
 
 	virtual Entry* add(Entry const& entry);
 	virtual void del(Entry* entry);
 	virtual vector<Entry*> getSubEntryList() const;
+	virtual bool hasChildWithTheSameName(Entry const& entry) const;
 
 	void write(ofstream& file) const;
 
@@ -50,8 +53,18 @@ public:
 	string getName() const { return this->Name; };
 	/* ============== BUU WRITE THIS ============== */
   
-	void seekToHeadOfData(fstream& file) const;
-	void seekToEndOfData(fstream& file) const;
+	void seekToHeadOfData_g(fstream& file) const;
+	void seekToHeadOfData_p(fstream& file) const;
+	void seekToEndOfData_g(fstream& file) const;
+	void seekToEndOfData_p(fstream& file) const;
+
+	void getFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd, string file_path, string file_name_in_volume, uint32_t& insert_pos);
+	void standardizeAfterImport(Entry* parent);
+
+private:
+	void initializeName();
+	void standardizePath();
+	void updatePathAfterImport(Entry* parent);
 
 protected:
 	/*==========*/
@@ -64,6 +77,8 @@ protected:
 	string		Path;
 	string		Password;
 	/*==========*/
-	string Name;
+	string		Name;
+	string		FullPathOutside;	// Window
+	bool		IsFolder;
 };
 

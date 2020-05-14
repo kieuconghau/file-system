@@ -4,9 +4,11 @@ Folder::Folder(Entry const& entry) : Entry(entry) {}
 
 Folder::~Folder()
 {
-	for (Entry* entry : this->EntryList) {
-		delete entry;
-		entry = nullptr;
+	for (size_t i = 0; i < this->EntryList.size(); ++i) {
+		if (this->EntryList[i] != nullptr) {
+			delete this->EntryList[i];
+			this->EntryList[i] = nullptr;
+		}
 	}
 
 	this->EntryList.resize(0);
@@ -78,5 +80,16 @@ void Folder::del(Entry* entry)
 vector<Entry*> Folder::getSubEntryList() const
 {
 	return this->EntryList;
+}
+
+bool Folder::hasChildWithTheSameName(Entry const& entry) const
+{
+	for (size_t i = 0; i < this->EntryList.size(); ++i) {
+		if (this->EntryList[i]->getName() == entry.getName()) {
+			return true;
+		}
+	}
+
+	return false;
 }
 

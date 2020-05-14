@@ -15,14 +15,14 @@ Volume::~Volume() {}
 bool Volume::create()
 {
 	// Check if this file exists, if yes, we cannot create a volume file with this name
-	fstream tempFile(this->Path, ios_base::in);
+	fstream tempFile(this->Path, ios_base::in | ios_base::binary);
 	if (tempFile.is_open()) {
 		tempFile.close();
 		return false;
 	}
 
 	// Create a volume file
-	fstream file(this->Path, ios_base::out);
+	fstream file(this->Path, ios_base::out | ios_base::binary);
 	if (file.is_open()) {
 		file.clear();
 		this->VolumeInfo.write(file);
@@ -36,20 +36,294 @@ bool Volume::create()
 void Volume::open()
 {
 	// Open a volume file, then read info of VolumeInfo and EntryTable
-	fstream file(this->Path);
+	fstream file(this->Path, ios_base::in | ios_base::binary);
 	if (file.is_open()) {
-		file.clear();
-		this->seekToHeadOfVolumeInfo(file);
+		this->seekToHeadOfVolumeInfo_g(file);
 		this->VolumeInfo.read(file);
 
-		this->seekToHeadOfEntryTable(file);
+		this->seekToHeadOfEntryTable_g(file);
 		this->EntryTable.read(file, this->VolumeInfo);
+		file.close();
 	}
-	file.close();
 
 	// Show list of files/folders in this volume.
 	// Perform all functions like: import, export, delete, set/reset password for a file/folder
 	this->performFunctions();
+}
+
+bool Volume::isEmpty() const
+{
+	return this->VolumeInfo.isEmptyVolume();
+}
+
+void Volume::importGUI(Entry* parent)
+{
+	system("cls");
+
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	GUI::printTextAtMid("===== IMPORT A FILE/FOLDER =====");
+	cout << "\n\n";
+
+	cout << "  Program: Input a path of a folder or a file that you want to import to this volume." << "\n\n";
+	cout << "  User: ";
+
+	setColor(COLOR::WHITE, COLOR::BLACK);
+	string str;
+	getline(cin, str);
+
+	if (this->import(str, parent)) {
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		cout << "\n\n" << "  Program: Import successfully." << "\n\n";
+		cout << "  ";
+		system("pause");
+	}
+	else {
+		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+		cout << "\n\n" << "  Program: Can not import this path into the volume." << "\n\n";
+		cout << "           Maybe this path does not exist OR" << "\n\n";
+		cout << "           This file or folder has the same name with the one in this volume." << "\n\n";
+		cout << "           Please check again!" << "\n\n";
+		cout << "  ";
+		system("pause");
+	}
+}
+
+bool Volume::import(string const& new_file_path, Entry* parent)
+{
+	fstream volumeStream(this->Path, ios_base::in | ios_base::out | ios_base::binary);
+
+	if (!volumeStream.is_open()) {
+		throw "Volume Path Error";
+	}
+
+	// Step 1: We'll get and store the info and data of the new file(s)
+	// into our program.
+
+	// Step 1.1: Get the info.
+
+	// If the file we inputted is just a file (not a folder),
+	// we'll get only the info of that file. But if the file
+	// we inputted in is in fact a folder, then:
+
+	// We'll use "level order tree traversal" to travel to each
+	// and every file or folder in the "directory tree"
+	// rooted at the file we inputted in.
+	// Each time we arrive at a file or folder in the tree,
+	// we'll get the info of that file or folder.
+
+	vector<Entry> file_entry_vector;
+
+	Entry file_entry;
+	_WIN32_FIND_DATAA ffd;
+
+	// We'll use a variable to keep track of the position
+	// where data of a new file is inserted. At first its value
+	// will be the original offset of the Entry Table (which is also
+	// the end position of the Data Area). Every time a file
+	// is found and an entry is created, the value of this variable
+	// will be used to fill in the "file offset" field of the entry
+	// and then be updated.
+
+	uint32_t insert_pos;
+	if (this->isEmpty()) {
+		insert_pos = 0;
+	}
+	else {
+		insert_pos = this->VolumeInfo.getEntryTableOffset();
+	}
+
+	HANDLE hFile = FindFirstFileA(new_file_path.c_str(), &ffd);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		//cout << "Failed to find the file." << endl;
+		volumeStream.close();
+		return false;
+	}
+
+	// If the current file is actually a folder.
+	if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+		queue<string> folder_path_queue;
+
+		const string root_folder_path = new_file_path;
+		const string root_folder_name = ffd.cFileName;
+		string parent_folder_path;
+		string file_name_in_volume;
+
+		file_name_in_volume = root_folder_name;
+		file_name_in_volume += "\\";
+
+		file_entry.getFileInfoAndConvertToEntry(ffd,
+			root_folder_path, file_name_in_volume, insert_pos);
+		file_entry_vector.push_back(file_entry);
+
+		folder_path_queue.push(root_folder_path);
+
+		Entry root = file_entry_vector[0];
+		root.standardizeAfterImport(parent);
+		if (parent->hasChildWithTheSameName(root)) {
+			volumeStream.close();
+			return false;
+		}
+
+		while (folder_path_queue.empty() == false) {
+			parent_folder_path = folder_path_queue.front() + "\\*";
+			folder_path_queue.pop();
+
+			// Every folder always contains two special subdirectories:
+			// "." (which refers to the current directory)
+			// and ".." (which refers to the parent directory).
+			// For some reason, the file finding function in WinAPI
+			// when searching for files in a folder
+			// will always find these two special directories first.
+			// So, when we've found these two directories, we have to
+			// ignore them.
+
+			// Find the "." directory, and then ignore it.
+			hFile = FindFirstFileA(parent_folder_path.c_str(), &ffd);
+			if (hFile == INVALID_HANDLE_VALUE) continue;
+
+			// Find the ".." directory, and then ignore it.
+			if (FindNextFileA(hFile, &ffd) == 0) continue;
+
+			// Now we can find the first REAL file in the current folder.
+
+			// If the finding function can't find any file
+			// (in other words, this folder is empty),
+			// we can continue with the next folder in the queue.
+			if (FindNextFileA(hFile, &ffd) == 0) continue;
+
+			do {
+				Entry temp_entry;
+				string file_path = parent_folder_path.substr(
+					0, parent_folder_path.length() - 1) + ffd.cFileName;
+
+				file_name_in_volume =
+					parent_folder_path.substr(
+						root_folder_path.length() - root_folder_name.length(),
+						parent_folder_path.length()
+						- root_folder_path.length()
+						+ root_folder_name.length()
+						- 1)
+					+ ffd.cFileName;
+
+				if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+					file_name_in_volume += "\\";
+				}
+
+				temp_entry.getFileInfoAndConvertToEntry(ffd,
+					file_path, file_name_in_volume, insert_pos);
+				file_entry_vector.push_back(temp_entry);
+
+				// If the current file is a folder.
+				if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
+					// Get the parent folder's path, remove the asterisk
+					// at the tail, append the current folder's name,
+					// and push the whole path into the queue.
+					folder_path_queue.push(
+						parent_folder_path.substr(0,
+							parent_folder_path.length() - 1)
+						+ ffd.cFileName);
+				}
+
+			} while (FindNextFileA(hFile, &ffd) != 0);
+
+		}
+	}
+	else {
+		file_entry.getFileInfoAndConvertToEntry(ffd, new_file_path,
+			ffd.cFileName, insert_pos);
+		file_entry_vector.push_back(file_entry);
+	}
+
+	FindClose(hFile);
+
+	// Convert to standardized entry
+	for (size_t i = 0; i < file_entry_vector.size(); ++i) {
+		file_entry_vector[i].standardizeAfterImport(parent);
+	}
+
+	// Step 1.2: Get the data
+
+	// Now we'll get the data of the files among the group
+	// of files and folders in the directory tree we've just
+	// finished traversing.
+	// (Again, if we inputted in a normal file (not a folder)
+	// then we'll just get the data of that file only.)
+
+	vector<FileData> file_data_vector;
+
+	ifstream file_stream;
+
+	for (size_t i = 0; i < file_entry_vector.size(); i++) {
+
+		// We only get the data of the files which are not folders.
+		if (file_entry_vector[i].getIsFolder() == false) {
+
+			file_stream.open(file_entry_vector[i].getFullPathOutside(), ios::binary);
+			if (file_stream.is_open() == false) continue;
+
+			FileData file_data(file_entry_vector[i].getSizeData());
+			
+			file_data.read(file_stream);
+			file_data_vector.push_back(file_data);
+
+			file_stream.close();
+
+
+		}
+	}
+
+	// All the info and data of the new file(s) have been prepared
+	// and are waiting to be written to the volume.
+
+	// Step 3:
+
+	if (this->isEmpty() == false) {	// If the volume is not empty.
+
+		// Set volume stream's pointer
+		// to the beginning of Entry Table.
+		this->seekToHeadOfEntryTable_p(volumeStream);
+	}
+	else {	// If the volume is empty
+
+		// Set volume stream's pointer
+		// to the beginning of the volume.
+		volumeStream.seekp(0, ios::beg);
+	}
+
+	// Write a bundle of
+	// "[Data of the new file(s)]
+	// - [Entries of old files] (which is the content of the Entry Table
+	// stored earlier)
+	// - [Entry (or entries) of the new file(s)] (consisting of
+	// the new file's (or new files') info)
+	// - [Volume Info Area]"
+	// and update the volume's info in the Volume Info Area.
+
+	// Write data of the new file(s).
+	for (size_t i = 0; i < file_data_vector.size(); i++) {
+		file_data_vector[i].write(volumeStream);
+	}
+
+	// Update the offset of Entry Table.
+	this->VolumeInfo.updateOffsetEntryTable((uint32_t)volumeStream.tellp());
+
+	// Add new entries to Entry Table (RAM)
+	for (size_t i = 0; i < file_entry_vector.size(); ++i) {
+		this->EntryTable.add(file_entry_vector[i]);
+	}
+
+	// Write updated Entry Table
+	this->EntryTable.write(volumeStream);
+	
+	// Update the size of Entry Table
+	this->VolumeInfo.updateSizeEntryTable((uint32_t)volumeStream.tellp());
+
+	// Write the Volume Info Area
+	this->VolumeInfo.write(volumeStream);
+
+	volumeStream.close();
+
+	return true;
 }
 
 string Volume::getPath() const
@@ -62,10 +336,10 @@ bool Volume::isVolumeFile()
 	// Open file and check if this file is a volume file
 	bool isVF = false;
 
-	fstream file(this->Path, ios_base::in);
+	fstream file(this->Path, ios_base::in | ios_base::binary);
 	if (file.is_open()) {
 		file.clear();
-		this->seekToHeadOfVolumeInfo(file);
+		this->seekToHeadOfVolumeInfo_g(file);
 		this->VolumeInfo.read(file);
 		isVF = this->VolumeInfo.checkSignature(file);
 	}
@@ -135,7 +409,7 @@ void Volume::navigate(Entry* f) {
 			}
 
 			// ============= PASSWORD =============
-			if (GetKeyState(0x50) & 0x8000) {
+			if (GetKeyState(0x50) & 0x8000) {	// P
 				while ((GetAsyncKeyState(0x50) & 0x8000)) {};
 
 				if (GUI::line != 0) {
@@ -148,6 +422,13 @@ void Volume::navigate(Entry* f) {
 				while ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {};
 
 				this->deleteOnVolume(f);
+			}
+
+			// ========== IMPORT ==========
+			if ((GetKeyState(0x49) & 0x8000)) {	// I
+				while ((GetKeyState(0x49) & 0x8000)) {};
+
+				this->importGUI(f);
 			}
 
 			// Refresh menu
@@ -269,7 +550,7 @@ bool Volume::del(Entry* entry, Entry* parent)
 
 	// Step 3: Delete this entry on File
 	size_t newEndPosOfVolumeFile = 0;
-	fstream file(this->Path);
+	fstream file(this->Path, ios_base::in | ios_base::out | ios_base::binary);
 	if (file.is_open()) {
 		file.clear();
 
@@ -277,13 +558,13 @@ bool Volume::del(Entry* entry, Entry* parent)
 		size_t const BLOCK_SIZE = 4096;	// byte
 		uint8_t subData[BLOCK_SIZE];
 
-		entry->seekToHeadOfData(file);
-		size_t startWrite = (size_t)file.tellg();
+		entry->seekToHeadOfData_p(file);
+		size_t startWrite = (size_t)file.tellp();
 
-		entry->seekToEndOfData(file);
+		entry->seekToEndOfData_g(file);
 		size_t startRead = (size_t)file.tellg();
 
-		this->VolumeInfo.seekToHeadOfEntryTable(file);
+		this->VolumeInfo.seekToHeadOfEntryTable_g(file);
 		size_t endDataField = (size_t)file.tellg();
 
 		size_t shiftingDataSize = endDataField - startRead;
@@ -293,14 +574,14 @@ bool Volume::del(Entry* entry, Entry* parent)
 			file.read((char*)subData, BLOCK_SIZE);
 			startRead += BLOCK_SIZE;
 
-			file.seekg(startWrite);
+			file.seekp(startWrite);
 			file.write((char*)subData, BLOCK_SIZE);
 			startWrite += BLOCK_SIZE;
 		}
 		shiftingDataSize %= BLOCK_SIZE;		// remain
 		file.seekg(startRead);
 		file.read((char*)subData, shiftingDataSize);
-		file.seekg(startWrite);
+		file.seekp(startWrite);
 		file.write((char*)subData, shiftingDataSize);
 
 		// Step 3.2: Entry Table
@@ -311,7 +592,7 @@ bool Volume::del(Entry* entry, Entry* parent)
 		this->VolumeInfo.updateAfterDel(entry);
 		this->VolumeInfo.write(file);
 
-		newEndPosOfVolumeFile = file.tellg();
+		newEndPosOfVolumeFile = file.tellp();
 	}
 	file.close();
 
@@ -451,26 +732,36 @@ void Volume::initialize(string const& volumeFilePath)
 	}
 }
 
-void Volume::seekToHeadOfVolumeInfo(fstream& file) const
+void Volume::seekToHeadOfVolumeInfo_g(fstream& file) const
 {
 	file.seekg(0 - (int)sizeof(VolumeInfo), ios_base::end);
 }
 
-void Volume::seekToHeadOfEntryTable(fstream& file) const
+void Volume::seekToHeadOfVolumeInfo_p(fstream& file) const
 {
-	this->VolumeInfo.seekToHeadOfEntryTable(file);
+	file.seekp(0 - (int)sizeof(VolumeInfo), ios_base::end);
+}
+
+void Volume::seekToHeadOfEntryTable_g(fstream& file) const
+{
+	this->VolumeInfo.seekToHeadOfEntryTable_g(file);
+}
+
+void Volume::seekToHeadOfEntryTable_p(fstream& file) const
+{
+	this->VolumeInfo.seekToHeadOfEntryTable_p(file);
 }
 
 void Volume::writePasswordChange() {
-	fstream file(this->Path);
+	fstream file(this->Path, ios_base::out | ios_base::binary);
 
 	size_t newSize = 0;
 	if (file.is_open()) {
-		this->seekToHeadOfEntryTable(file);
+		this->seekToHeadOfEntryTable_p(file);
 		this->EntryTable.write(file);
 		this->VolumeInfo.write(file);
 
-		newSize = file.tellg();
+		newSize = file.tellp();
 		file.close();
 
 		this->resize(newSize);

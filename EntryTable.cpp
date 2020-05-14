@@ -8,12 +8,16 @@ EntryTable::EntryTable()
 
 EntryTable::~EntryTable()
 {
-	delete this->Root;
+	if (this->Root != nullptr) {
+		delete this->Root;
+		this->Root = nullptr;
+	}
 }
 
 void EntryTable::read(fstream& file, VolumeInfo const& volumeInfo)
 {
-	while (!volumeInfo.isEndOfEntryTable(file)) {
+	size_t i = 0;
+	while (!volumeInfo.isEndOfEntryTable_g(file)) {
 		Entry entry;
 		entry.read(file);
 		this->add(entry);
@@ -31,9 +35,9 @@ void EntryTable::add(Entry const& entry)
 {
 	bool foundParent = false;
 	
-	for (Entry* parent : this->EntryList) {
-		if (entry.hasParent(parent)) {
-			this->EntryList.push_back(parent->add(entry));
+	for (size_t i = 0; i < this->EntryList.size(); ++i) {
+		if (entry.hasParent(this->EntryList[i])) {
+			this->EntryList.push_back(this->EntryList[i]->add(entry));
 			foundParent = true;
 			return;
 		}
