@@ -206,7 +206,7 @@ void Volume::enterFolder(Entry* parent, bool& back)
 		else {
 			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
 			gotoXY(0, 5); cout << "  Error: Invalid password. Access folder denied. ";
-			gotoXY(0, 7); system("pause");
+			gotoXY(0, 7); cout << "  "; system("pause");
 			setColor(COLOR::WHITE, COLOR::BLACK);
 		}
 	}
@@ -233,7 +233,7 @@ void Volume::setPassword(Entry* f)
 		else {
 			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
 			gotoXY(0, 5);  cout << "  Error: Invalid password. Reset pasword denied. " << endl;
-			gotoXY(0, 7); system("pause");
+			gotoXY(0, 7); cout << "  ";  system("pause");
 			setColor(COLOR::WHITE, COLOR::BLACK);
 			return;
 		}

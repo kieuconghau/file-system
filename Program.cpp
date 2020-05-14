@@ -109,6 +109,7 @@ void Program::createVolume()
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 		cout << "\n";
 		cout << "  Program: The new volume is created successfully!" << "\n\n";
+		cout << "  ";
 		system("pause");
 	}
 	else {
