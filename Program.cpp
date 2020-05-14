@@ -19,114 +19,106 @@ void Program::run()
 
 void Program::openVolume()
 {
-	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-	cout << "::::: OPEN A VOLUME :::::";
-	cout << "\n\n";
+	while (true) {
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		GUI::printTextAtMid("===== OPEN A VOLUME =====");
+		cout << "\n\n";
 
-	// Show list of existing volume path in cache
-	setColor(COLOR::WHITE, COLOR::BLACK);
-	vector<string> volumePathList = this->Cache.getVolumePathList();
-	for (size_t i = 1; i <= volumePathList.size(); ++i) {
-		cout << " <" << i << "> ";
-		gotoXY(7, whereY());
-		cout << volumePathList[i - 1] << "\n";
-	}
-	cout << "\n";
+		// Show list of recently opened volume paths in cache
+		this->Cache.showListOfRecentlyOpenedVolume();
+		cout << "\n";
 
-	// Input
-	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-	if (this->Cache.isEmpty()) {
-		cout << "Program: Input a path." << "\n";
-	}
-	else {
-		cout << "Program: Input a path (or <i>, with i is the index of the above list)." << "\n";
-	}
-	cout << "\n" << "Your input: ";
+		// Input
+		if (this->Cache.isEmpty()) {
+			cout << "  Program: Input a path to open a volume." << "\n";
+		}
+		else {
+			cout << "  Program: * Input a path to open a volume OR" << "\n";
+			cout << "           * Input";
+			setColor(COLOR::WHITE, COLOR::BLACK);
+			cout << " <i> ";
+			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+			cout << "to open a recent volume (i is the index in the above list) OR" << "\n";
+			cout << "           * Input";
+			setColor(COLOR::WHITE, COLOR::BLACK);
+			cout << " <clear cache> ";
+			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+			cout << "to clear the above list." << "\n";
+		}
+		cout << "\n" << "  User: ";
 
-	setColor(COLOR::WHITE, COLOR::BLACK);
-	string str;
-	getline(cin, str);
+		setColor(COLOR::WHITE, COLOR::BLACK);
+		string str;
+		getline(cin, str);
 
-	// If the input is <i>, change the content of str to the correspoding volume path
-	bool openVolumeInCache = false;
-
-	if (str.length() != 0 && str.front() == '<' && str.back() == '>') {
-		size_t indexVolume = 0;
-
-		for (size_t i = 1; i < str.length() - 1; ++i) {
-			if (str[i] >= '0' && str[i] <= '9') {
-				indexVolume *= 10;
-				indexVolume += str[i] - '0';
-			}
-			else {
-				indexVolume = 0;
-				break;
-			}
+		// If the input is <clear cache>
+		if (str == "<clear cache>") {
+			this->Cache.clear();
+			system("cls");
+			continue;
 		}
 
-		if (indexVolume >= 1 && indexVolume <= volumePathList.size()) {
-			openVolumeInCache = true;
-			str = volumePathList[indexVolume - 1];
+		// If the input is <i>, change the content of str to the correspoding volume path
+		bool openVolumeInCache = this->Cache.hasVolume(str);
+
+		// Open this volume
+		this->initializeVolume(str);
+
+		if (this->Vol->isVolumeFile()) {
+			this->Cache.add(this->Vol->getPath());
+			this->Vol->open();
 		}
-	}
+		else {
+			if (openVolumeInCache) {
+				this->Cache.update();
+			}
 
-	// Open volume
-	this->initializeVolume(str);
+			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+			cout << "\n";
+			cout << "  Program: Cannot open this volume." << "\n\n";
 
-	if (this->Vol->isVolumeFile()) {
-		this->Cache.add(this->Vol->getPath());
+			cout << "  ";
+			system("pause");
+		}
 
-		this->Vol->open();
-	}
-	else {
-		setColor(14, 0);
-		cout << endl;
-		cout << "Program: Cannot open this volume." << endl << endl;
-
-		setColor(15, 0);
-		system("pause");
-	}
-
-	this->closeVolume();
-
-	if (openVolumeInCache) {
-		this->Cache.update();
+		this->closeVolume();
+		break;
 	}
 }
 
 void Program::createVolume()
 {
 	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-	cout << "::::: CREATE A VOLUME :::::";
+	GUI::printTextAtMid("===== CREATE A VOLUME =====");
 	cout << "\n\n";
 
-	cout << "Program: Input a path." << "\n\n";
-	cout << "Your input: ";
+	// Input a path
+	cout << "  Program: Input a path to create a volume." << "\n\n";
+	cout << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string volumeFilePath;
 	getline(cin, volumeFilePath);
 
+	// Create this volume
 	this->initializeVolume(volumeFilePath);
 
 	if (this->Vol->create()) {
 		this->Cache.add(this->Vol->getPath());
 
-		setColor(10, 0);
-		cout << endl;
-		cout << "Program: The new volume is created successfully!" << endl << endl;
-		
-		setColor(15, 0);
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		cout << "\n";
+		cout << "  Program: The new volume is created successfully!" << "\n\n";
+		cout << "  ";
 		system("pause");
 	}
 	else {
-		setColor(14, 0);
+		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
 		cout << endl;
-		cout << "Program: Cannot create a new volume." << endl << endl;
-		cout << "         This path does not exist OR it is taken." << endl << endl;
-		cout << "         Please choose another path." << endl << endl;
-		
-		setColor(15, 0);
+		cout << "  Program: Cannot create a new volume." << "\n\n";
+		cout << "           This path does not exist OR it is taken." << "\n\n";
+		cout << "           Please input another path." << "\n\n";
+		cout << "  ";
 		system("pause");
 	}
 
@@ -181,16 +173,16 @@ void Program::homeScreen() {
 	
 	setColor(14, 0);
 	if (GUI::line == 0) setColor(15, 1);
-	gotoXY(48, 25); cout << " 1.>   Create a new volume   ";	setColor(15, 0);
+	gotoXY(48, 25); cout << " 1.> Create a new volume     ";	setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 1) setColor(15, 1);
 	gotoXY(48, 26); cout << " 2.> Open an existing volume "; setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 2) setColor(15, 1);
-	gotoXY(48, 27); cout << " 3.>      Instruction       "; setColor(15, 0);
+	gotoXY(48, 27); cout << " 3.> Instruction             "; setColor(15, 0);
 	setColor(14, 0);
 	if (GUI::line == 3) setColor(15, 1);
-	gotoXY(48, 28); cout << " 4.>         Exit           "; setColor(15, 0);
+	gotoXY(48, 28); cout << " 4.> Exit                    "; setColor(15, 0);
 	setColor(15, 0);
 }
 

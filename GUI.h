@@ -25,6 +25,7 @@ public:
 	static void checkPassword(int i);
 	static void printProgress(string content, double percentage);
 	static void instructionScreen();
+	static void printTextAtMid(string const& text, size_t const& left = 0, size_t const& right = w);
 
 private:
 	static string hidePassword();

@@ -204,10 +204,10 @@ void Volume::enterFolder(Entry* parent, bool& back)
 			this->navigate(f);
 		}
 		else {
-			setColor(4, 0);
-			gotoXY(0, 5); cout << "Error: Invalid password. Access folder denied. ";
-			gotoXY(0, 7); system("pause");
-			setColor(15, 0);
+			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+			gotoXY(0, 5); cout << "  Error: Invalid password. Access folder denied. ";
+			gotoXY(0, 7); cout << "  "; system("pause");
+			setColor(COLOR::WHITE, COLOR::BLACK);
 		}
 	}
 	else {
@@ -231,10 +231,10 @@ void Volume::setPassword(Entry* f)
 			f->resetPassword();
 		}
 		else {
-			setColor(4, 0);
-			gotoXY(0, 5);  cout << "Error: Invalid password. Reset pasword denied. " << endl;
-			gotoXY(0, 7); system("pause");
-			setColor(15, 0);
+			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+			gotoXY(0, 5);  cout << "  Error: Invalid password. Reset pasword denied. " << endl;
+			gotoXY(0, 7); cout << "  ";  system("pause");
+			setColor(COLOR::WHITE, COLOR::BLACK);
 			return;
 		}
 	}
@@ -346,7 +346,7 @@ void Volume::resize(size_t const& size)
 	// Check error after opening this volume file
 	DWORD dwErr = GetLastError();
 	if (dwErr > 0) {
-		cout << "Error: " << dwErr << endl;
+		cout << "  Error: " << dwErr << endl;
 		throw;
 	}
 
@@ -371,10 +371,10 @@ void Volume::deleteOnVolume(Entry* f) {
 		pw = GUI::enterPassword();
 
 		if (!f->checkPassword(pw)) {
-			setColor(12, 0);
-			gotoXY(0, 5); cout << "Error: Invalid password. Deletion denied. " << endl;
-			gotoXY(0, 7);  system("pause");
-			setColor(15, 0);
+			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+			gotoXY(0, 5); cout << "  Error: Invalid password. Deletion denied. " << endl;
+			gotoXY(0, 7); cout << "  "; system("pause");
+			setColor(COLOR::WHITE, COLOR::BLACK);
 			return;
 		}
 
@@ -382,43 +382,43 @@ void Volume::deleteOnVolume(Entry* f) {
 	}
 
 	string name = f->getName();
-	setColor(12, 0);
-	cout << "Program: Do you want to permanently DELETE '" << name << "'? " << endl;
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	cout << "  Program: Do you want to permanently DELETE '" << name << "'? " << endl;
 	cout << endl;
-	cout <<"         Type DELETE to confirm | else it will cancel." << endl;
+	cout << "           Type DELETE to confirm | else it will cancel." << endl;
 	cout << endl;
-	setColor(11, 0);  cout << "User:    ";
-	setColor(15, 0);  cin >> pw;
+	cout << "  User:    ";
+	setColor(COLOR::WHITE, COLOR::BLACK);  cin >> pw;
 	cout << endl;
-	setColor(15, 0);
+	setColor(COLOR::WHITE, COLOR::BLACK);
 
 	if ((pw.compare("DELETE") == 0) || (pw.compare("delete") == 0)) {
 	
 		if (!this->del(f, parent)) {
-			setColor(12, 0);
-			cout << "Program: '" << name << "' can not be deleted totally." << endl;
+			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+			cout << "  Program: '" << name << "' can not be deleted totally." << endl;
 			cout << endl;
-			cout<< "         Because this folder still stores some files or folders secured with password." << endl;
+			cout << "           Because this folder still stores some files or folders secured with password." << endl;
 			cout << endl;
-			cout << "         To delete '" << name << "' totally, make sure that all files or folders stored in this folder have no password." << endl;
+			cout << "           To delete '" << name << "' totally, make sure that all files or folders stored in this folder have no password." << endl;
 		}
 		else {
-			setColor(11, 0);
-			cout << "Program:  '" << name << "' is deleted successfully. " << endl;
+			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+			cout << "  Program:  '" << name << "' is deleted successfully. " << endl;
 		}
 		cout << endl;
-		setColor(11, 0);
+		cout << "  ";
 		system("pause");
-		setColor(15, 0);
+		setColor(COLOR::WHITE, COLOR::BLACK);
 		GUI::reset();
 	}
 	else {
-		setColor(11, 0);
-		cout << "Program: Delete  '" << name << "' is canceled. " << endl;
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		cout << "  Program: Delete  '" << name << "' is canceled. " << endl;
 		cout << endl;
-		setColor(11, 0);
+		cout << "  ";
 		system("pause");
-		setColor(15, 0);
+		setColor(COLOR::WHITE, COLOR::BLACK);
 	}
 
 	
