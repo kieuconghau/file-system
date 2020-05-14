@@ -60,25 +60,26 @@ string GUI::enterPassword() {
 
     setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 
-    gotoXY(0, 0); cout << "Program: LOGIN";
+    gotoXY(0, 0);
+    GUI::printTextAtMid("===== LOGIN =====");
 
     while (true) {
         setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 
         gotoXY(0, 2); 
-        cout << "Password:  ";      pw   = GUI::hidePassword();      cout << endl;
+        cout << "  Password:  ";      pw   = GUI::hidePassword();      cout << endl;
         setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-        cout << "Re-enter:  ";      repw = GUI::hidePassword();      cout << endl;
+        cout << "  Re-enter:  ";      repw = GUI::hidePassword();      cout << endl;
 
         if (pw.compare(repw) == 0) {
             break;
         }
         else {
             clrscr();
-            setColor(4, 0);
+            setColor(COLOR::LIGHT_RED, COLOR::BLACK);
             gotoXY(0, 0);
-            cout << "Error: Password is not the same. " << endl;
-            setColor(15, 0);
+            cout << "  Error: Password is not the same. " << endl;
+            setColor(COLOR::WHITE, COLOR::BLACK);
         }
     }
     return pw;
@@ -91,13 +92,13 @@ void GUI::checkPassword(int i) {
     gotoXY(0, 5);
     switch (i) {
     case 0:
-        cout << "Verifing password  .      ";
+        cout << "  Verifing password  .      ";
         break;
     case 1:
-        cout << "Verifing password  .  .   ";
+        cout << "  Verifing password  .  .   ";
         break;
     case 2:
-        cout << "Verifing password  .  .  .";
+        cout << "  Verifing password  .  .  .";
         break;
     }
 }
@@ -122,26 +123,56 @@ void GUI::printProgress(string content, double percentage) {
 
 void GUI::instructionScreen() {
 
-    gotoXY(0, 0);  cout << ".NHT INSTRUCTION";
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(0, 0);
+    GUI::printTextAtMid("===== .NHT INSTRUCTION =====");
 
-    gotoXY(0, 2);  cout << "* Use ARROW 'UP' and ARROW 'DOWN' to move upward and downward between lines. ";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(0, 2);  cout << "  * Use ARROW 'UP' and ARROW 'DOWN' to move upward and downward between lines. ";
 
-    gotoXY(0, 4);  cout << "* When you open an existing volume successfully these are functional key you should know:";
+    gotoXY(0, 4);  cout << "  * When you open an existing volume successfully these are functional key you should know:";
 
-    gotoXY(0, 6);  cout << "\t[ENTER]:        To enter a folder.";
+    size_t x1 = 8;
+    size_t x2 = 24;
 
-    gotoXY(0, 8);  cout << "\t[P]:            To set/reset password for a folder or file.";
-    gotoXY(0, 9);  cout << "\t                If a folder/file has password, it requires password to do any manipulation on it.";
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(x1, 6); cout << "[ENTER]:";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(x2, 6); cout << "To enter a folder.";
 
-    gotoXY(0, 11); cout << "\t[I}:            To import a file/folder from a given path.";
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(x1, 8); cout << "[P]:";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(x2, 8); cout << "To set / reset password for a folder or file.";
+    gotoXY(x2, 9); cout << "If a folder/file has password, it requires password to do any manipulation on it.";
 
-    gotoXY(0, 13); cout << "\t[E]:            To export a file/folder from a given path.";
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(x1, 11); cout << "[I]:";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(x2, 11); cout << "To import a file/folder from a given path.";
 
-    gotoXY(0, 15); cout << "\t[DEL] or [D]:   To delete a file or a folder";
-    gotoXY(0, 16); cout << "\t                If you delete a folder which has a locked file/folder inside,";
-    gotoXY(0, 17); cout << "\t                It won't be deleted totally and still contain the locked files/folders inside.";
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(x1, 13); cout << "[E]:";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(x2, 13); cout << "To export a file/folder from a given path.";
 
-    gotoXY(0, 19); cout << "\t[F1]:           Show this instruction.";
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(x1, 15); cout << "[DEL] or [D]:";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(x2, 15); cout << "To delete a file or a folder";
+    gotoXY(x2, 16); cout << "If you delete a folder which has a locked file/folder inside,";
+    gotoXY(x2, 17); cout << "It won't be deleted totally and still contain the locked files/folders inside.";
 
-    gotoXY(0, 21);  system("pause");
+    setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+    gotoXY(x1, 19); cout << "[F1]:";
+    setColor(COLOR::WHITE, COLOR::BLACK);
+    gotoXY(x2, 19); cout << "Show this instruction.";
+
+    gotoXY(0, 21); cout << "  ";  system("pause");
+}
+
+void GUI::printTextAtMid(string const& text, size_t const& left, size_t const& right)
+{
+    gotoXY((right - left - text.length()) / 2, whereY());
+    cout << text;
 }

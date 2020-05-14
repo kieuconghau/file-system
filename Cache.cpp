@@ -77,9 +77,47 @@ void Cache::update()
 	}
 }
 
-vector<string> Cache::getVolumePathList() const
+void Cache::clear()
 {
-	return this->VolumePathList;
+	this->VolumePathList.clear();
+	this->initialize();
+}
+
+void Cache::showListOfRecentlyOpenedVolume() const
+{
+	if (!this->isEmpty()) {
+		cout << "  List of recent volumes:" << "\n";
+		for (size_t i = 0; i < this->VolumePathList.size(); ++i) {
+			cout << "    <" << i + 1 << "> ";
+			gotoXY(10, whereY());
+			cout << this->VolumePathList[i] << "\n";
+		}
+	}
+}
+
+bool Cache::hasVolume(string& str) const
+{
+	if (str.length() != 0 && str.front() == '<' && str.back() == '>') {
+		size_t indexVolume = 0;
+
+		for (size_t i = 1; i < str.length() - 1; ++i) {
+			if (str[i] >= '0' && str[i] <= '9') {
+				indexVolume *= 10;
+				indexVolume += str[i] - '0';
+			}
+			else {
+				indexVolume = 0;
+				break;
+			}
+		}
+
+		if (indexVolume >= 1 && indexVolume <= this->VolumePathList.size()) {
+			str = this->VolumePathList[indexVolume - 1];
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool Cache::exist()

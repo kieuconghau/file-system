@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GUI.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -15,7 +17,9 @@ public:
 	bool isEmpty() const;
 	void add(string const& volumeFilePath);
 	void update();
-	vector<string> getVolumePathList() const;
+	void clear();
+	void showListOfRecentlyOpenedVolume() const;
+	bool hasVolume(string& str) const;
 
 private:
 	static string const Path;
