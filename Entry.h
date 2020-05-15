@@ -51,6 +51,8 @@ public:
 	void resetPassword();
 	bool checkPassword(string pw);
 	string getName() const { return this->Name; };
+	void displayModTime();
+	void displayModDate();
 	/* ============== BUU WRITE THIS ============== */
   
 	void seekToHeadOfData_g(fstream& file) const;

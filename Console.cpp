@@ -122,3 +122,7 @@ void FixSizeWindow(int width, int height) {
     SetConsoleScreenBufferSize(Handle, coord);            // Set Buffer Size
     SetConsoleWindowInfo(Handle, TRUE, &Rect);            // Set Window Size
 }
+
+string convert(uint8_t *str) {
+    return string((char*)str);
+}
