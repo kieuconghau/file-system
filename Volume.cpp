@@ -117,12 +117,14 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	_WIN32_FIND_DATAA ffd;
 
 	// We'll use a variable to keep track of the position
-	// where data of a new file is inserted. At first its value
-	// will be the original offset of the Entry Table (which is also
-	// the end position of the Data Area). Every time a file
-	// is found and an entry is created, the value of this variable
-	// will be used to fill in the "file offset" field of the entry
-	// and then be updated.
+	// where data of a new file is going to be inserted.
+	// At first its value will be the original offset
+	// of the Entry Table (which is also the end position
+	// of the Data Area).
+	// Every time a file is found and an entry is created,
+	// the value of this variable will be used to fill in
+	// the "file offset" field of the entry. After that,
+	// the value of this variable will be updated.
 
 	uint32_t insert_pos;
 	if (this->isEmpty()) {
@@ -134,7 +136,6 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 
 	HANDLE hFile = FindFirstFileA(new_file_path.c_str(), &ffd);
 	if (hFile == INVALID_HANDLE_VALUE) {
-		//cout << "Failed to find the file." << endl;
 		volumeStream.close();
 		return false;
 	}
@@ -275,7 +276,7 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	// All the info and data of the new file(s) have been prepared
 	// and are waiting to be written to the volume.
 
-	// Step 3:
+	// Step 2: Write the info and data of the new file(s) into the volume.
 
 	if (this->isEmpty() == false) {	// If the volume is not empty.
 
@@ -326,6 +327,135 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	return true;
 }
 
+void Volume::exportGUI(Entry* f) {
+	system("cls");
+
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	GUI::printTextAtMid("===== EXPORT A FILE/FOLDER =====");
+	cout << "\n\n";
+
+	cout << "  File/folder to be exported: ";
+
+	setColor(COLOR::WHITE, COLOR::BLACK);
+	cout << f->getPath() << endl;
+
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	cout << "  Program: Input a path of a folder that you want to "
+		<< "export this file/folder to." << "\n\n";
+	cout << "  User: ";
+
+	setColor(COLOR::WHITE, COLOR::BLACK);
+	string str;
+	getline(cin, str);
+
+	if (this->exportFile(f, str)) {
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		cout << "\n\n" << "  Program: Export successfully." << "\n\n";
+		cout << "  ";
+		system("pause");
+	}
+	else {
+		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+		cout << "\n\n" << "  Program: Can not export this file/folder to "
+			<< "the specified path." << "\n\n";
+		cout << "           Maybe the specified path does not exist." << "\n\n";
+		cout << "           Please check again!" << "\n\n";
+		cout << "  ";
+		system("pause");
+	}
+}
+
+bool Volume::exportFile(Entry* export_file_entry,
+	string const& destination_path) {
+
+	fstream volume_stream(this->Path, ios::in, ios_base::binary);
+	if (volume_stream.is_open() == false) {
+		throw "Volume Path Error";
+	}
+
+	// Check if the destination path exists.
+	_WIN32_FIND_DATAA ffd;
+	HANDLE hFile = FindFirstFileA(destination_path.c_str(), &ffd);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		volume_stream.close();
+		return false;
+	}
+
+	// We use "level order tree traversal" algorithm to travel to
+	// each and every subfiles and subfolders of the inputted file
+	// (if the inputted file is actually a folder).
+
+	queue<Entry*> export_file_entry_queue;
+	export_file_entry_queue.push(export_file_entry);
+
+	while (export_file_entry_queue.empty() == false) {
+		Entry* file_entry = export_file_entry_queue.front();
+		export_file_entry_queue.pop();
+
+		// If the file in question is a normal file (not a folder).
+		if (file_entry->isFolder() == false) {
+			string file_creation_path;
+			file_creation_path = destination_path + "\\"
+				+ file_entry->getPath().substr(
+					export_file_entry->getPath().length()
+					- (export_file_entry->getName().length() + 1),
+					file_entry->getPath().length()
+					- (export_file_entry->getPath().length()
+						- (export_file_entry->getName().length() + 1)
+						)
+				);
+
+			ofstream export_file_stream;
+			export_file_stream.open(file_creation_path, ios::binary);
+
+			if (export_file_stream.is_open() == true) {
+				const int BUFFER_SIZE = 4096;
+				char buffer[BUFFER_SIZE];
+
+				file_entry->seekToHeadOfData_g(volume_stream);
+				for (int i = 0; i < file_entry->getSizeData() / BUFFER_SIZE;
+					i++) {
+					volume_stream.read(buffer, BUFFER_SIZE);
+					export_file_stream.write(buffer, BUFFER_SIZE);
+				}
+				volume_stream.read(buffer,
+					file_entry->getSizeData() % BUFFER_SIZE);
+				export_file_stream.write(buffer,
+					file_entry->getSizeData() % BUFFER_SIZE);
+
+				export_file_stream.close();
+			}
+		}
+
+		// If the file in question is actually a folder.
+		else {
+			string folder_creation_path;
+			folder_creation_path = destination_path + "\\"
+				+ file_entry->getPath().substr(
+					export_file_entry->getPath().length()
+					- (export_file_entry->getName().length() + 1),
+					file_entry->getPath().length()
+					- (export_file_entry->getPath().length()
+						- (export_file_entry->getName().length() + 1)
+						) - 1
+				);
+
+			// If the folder is successfully created.
+			if (CreateDirectoryA(
+				folder_creation_path.c_str(), NULL) != 0) {
+				// Push the entries of subfiles into the queue.
+				vector<Entry*> sub_entry_list = file_entry->getSubEntryList();
+				for (size_t i = 0; i < sub_entry_list.size(); i++) {
+					export_file_entry_queue.push(sub_entry_list[i]);
+				}
+			}
+		}
+	}
+
+	volume_stream.close();
+	return true;
+}
+
 string Volume::getPath() const
 {
 	return this->Path;
@@ -373,7 +503,7 @@ void Volume::navigate(Entry* f) {
 			FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 
 			// ============= ENTER =============
-			if (GetKeyState(0x0D) & 0x8000) {
+			if (GetKeyState(0x0D) & 0x8000) {	// ENTER
 				while ((GetAsyncKeyState(VK_RETURN) & 0x8000)) {};
 				this->enterFolder(f, back);
 			}
@@ -394,7 +524,7 @@ void Volume::navigate(Entry* f) {
 			}
 
 			// ============= BACK =============
-			if (GetKeyState(0x08) & 0x8000) {
+			if (GetKeyState(0x08) & 0x8000) {	// BACKSPACE
 				while ((GetAsyncKeyState(VK_BACK) & 0x8000)) {};
 
 				back = true;
@@ -402,7 +532,7 @@ void Volume::navigate(Entry* f) {
 			}
 
 			// ============= EXIT =============
-			if (GetKeyState(0x1B) & 0x8000) {
+			if (GetKeyState(0x1B) & 0x8000) {	// ESC
 				while ((GetAsyncKeyState(0x1B) & 0x8000)) {};
 
 				GUI::esc = true;
@@ -418,7 +548,7 @@ void Volume::navigate(Entry* f) {
 			}
 
 			// ========== DELETE A FILE/FOLDER ==========
-			if ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {
+			if ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {	// D or DEL
 				while ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {};
 
 				this->deleteOnVolume(f);
@@ -429,6 +559,13 @@ void Volume::navigate(Entry* f) {
 				while ((GetKeyState(0x49) & 0x8000)) {};
 
 				this->importGUI(f);
+			}
+
+			// ========== EXPORT ==========
+			if ((GetKeyState(0x45) & 0x8000)) {	// E
+				while ((GetKeyState(0x45) & 0x8000)) {};
+
+				this->exportGUI(f->getEntryInList(GUI::line - 1));
 			}
 
 			// Refresh menu
