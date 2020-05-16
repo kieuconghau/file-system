@@ -43,6 +43,9 @@ private:
 
 	void importGUI(Entry* parent);
 	bool import(string const& new_file_path, Entry* parent);
+	
+	void exportGUI(Entry* f);
+	bool exportFile(Entry* export_file_entry, string const& destination_path);
 
 	void resize(size_t const& size);
 
