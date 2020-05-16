@@ -73,14 +73,14 @@ string GUI::enterPassword() {
         setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
         cout << "  Re-enter:  ";      repw = GUI::hidePassword();      cout << endl;
 
-        if (pw.compare(repw) == 0) {
+        if (pw.compare(repw) == 0 && pw.length() >= 8) {
             break;
         }
         else {
             clrscr();
             setColor(COLOR::LIGHT_RED, COLOR::BLACK);
             gotoXY(0, 0);
-            cout << "  Error: Password is not the same. " << endl;
+            cout << "  Error: Password must be the same and have at least 8 characters. " << endl;
             setColor(COLOR::WHITE, COLOR::BLACK);
         }
     }
