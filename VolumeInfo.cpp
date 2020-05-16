@@ -1,8 +1,10 @@
 #include "VolumeInfo.h"
 
+uint32_t const VolumeInfo::DefaultSignature = 0x0254484E;
+
 VolumeInfo::VolumeInfo()
 {
-	this->Signature			= 0x024E4854;	// "THN "
+	this->Signature			= this->DefaultSignature;
 	this->SizeEntryTable	= 0;
 	this->OffsetEntryTable	= 0;
 }
@@ -35,7 +37,7 @@ void VolumeInfo::read(fstream& file) const
 
 bool VolumeInfo::checkSignature(fstream& file) const
 {
-	return this->Signature == 0x024E4854;
+	return this->Signature == this->DefaultSignature;
 }
 
 void VolumeInfo::seekToHeadOfEntryTable_g(fstream& file) const

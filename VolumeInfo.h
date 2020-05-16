@@ -33,6 +33,9 @@ public:
 	/*========================*/
 
 private:
+	static uint32_t const DefaultSignature;
+
+private:
 	/*==========*/
 	uint32_t Signature;
 	uint32_t SizeEntryTable;
