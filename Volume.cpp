@@ -745,7 +745,9 @@ bool Volume::del(Entry* entry, Entry* parent)
 			isTotallyDeleted = false;
 			continue;
 		}
-		this->del(subEntry, entry);
+		if (!this->del(subEntry, entry)) {
+			isTotallyDeleted = false;
+		}
 	}
 
 	// Step 2: Check if this entry still stores sub-entries, if yes, we can not delete this entry.
