@@ -355,13 +355,11 @@ bool Entry::checkPassword(string pw) {
 
 void Entry::displayModDate() {
 	uint8_t d, m, y;
-	uint16_t temp;
 	d = m = y = 0;
 	string date;
 
 	// Day
-	temp = (ModifiedDate << 11);
-	d |= (temp >> 11);
+	d = this->ModifiedDate & 31;
 	if (d < 10) {
 		cout << "0" << (int)d << "/";
 	}
@@ -370,9 +368,7 @@ void Entry::displayModDate() {
 	}
 
 	// Month
-	m = (ModifiedDate >> 5);
-	m = (m << 4);
-	m = (m >> 4);
+	m = (this->ModifiedDate >> 5) & 15;
 	if (m < 10) {
 		cout << "0" << (int)m << "/";
 	}
@@ -381,7 +377,7 @@ void Entry::displayModDate() {
 	}
 
 	// Year
-	y = (ModifiedDate >> 9);
+	y = (this->ModifiedDate >> 9);
 	cout << ((int)y + 1980);
 
 }
@@ -390,7 +386,7 @@ void Entry::displayModTime() {
 	uint8_t hr, m, s;
 
 	// Hour
-	hr = (ModifiedTime >> 11);
+	hr = (this->ModifiedTime >> 11);
 	if (hr < 10) {
 		cout << "0" << (int)hr << ":";
 	}
@@ -399,9 +395,7 @@ void Entry::displayModTime() {
 	}
 
 	// Min
-	m = (ModifiedDate >> 5);
-	m = (m << 2);
-	m = (m >> 2);
+	m = (this->ModifiedTime >> 5) & 63;
 	if (m < 10) {
 		cout << "0" << (int)m << ":";
 	}
@@ -410,10 +404,7 @@ void Entry::displayModTime() {
 	}
 
 	// Sec
-	s = ModifiedDate;
-	s = (s << 3);
-	s = (s >> 3);
-	s *= 2;
+	s = (this->ModifiedTime & 31) << 1;
 	if (s < 10) {
 		cout << "0" << (int)s;
 	}
