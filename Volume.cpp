@@ -580,7 +580,9 @@ void Volume::navigate(Entry* f) {
 			if ((GetKeyState(0x45) & 0x8000)) {	// E
 				while ((GetKeyState(0x45) & 0x8000)) {};
 
-				this->exportGUI(f->getEntryInList(GUI::line - 1));
+				if (GUI::line != 0) {
+					this->exportGUI(f->getEntryInList(GUI::line - 1));
+				}
 			}
 
 			// Refresh menu
