@@ -26,6 +26,7 @@ public:
 	static void printProgress(string content, double percentage);
 	static void instructionScreen();
 	static void printTextAtMid(string const& text, size_t const& left = 0, size_t const& right = w);
+	static void displayParent(bool selected);
 
 private:
 	static string hidePassword();
