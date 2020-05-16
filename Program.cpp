@@ -104,7 +104,7 @@ void Program::createVolume()
 	getline(cin, volumeFilePath);
 
 	// Create this volume
-	this->initializeVolume(volumeFilePath);
+	this->initializeVolume(volumeFilePath + Volume::Extension);
 
 	if (this->Vol->create()) {
 		this->Cache.add(this->Vol->getPath());

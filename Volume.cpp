@@ -1,11 +1,8 @@
 #include "Volume.h"
 
-Volume::Volume() : VolumeInfo(), EntryTable()
-{
-	this->Path = "";
-}
+string const Volume::Extension = ".nht";
 
-Volume::Volume(string const& volumeFilePath)
+Volume::Volume(string const& volumeFilePath) : VolumeInfo(), EntryTable()
 {
 	this->initialize(volumeFilePath);
 }
@@ -472,8 +469,8 @@ bool Volume::isVolumeFile()
 		this->seekToHeadOfVolumeInfo_g(file);
 		this->VolumeInfo.read(file);
 		isVF = this->VolumeInfo.checkSignature(file);
+		file.close();
 	}
-	file.close();
 
 	return isVF;
 }
