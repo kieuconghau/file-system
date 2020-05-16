@@ -598,16 +598,17 @@ void Volume::navigate(Entry* f) {
 				this->exportGUI(f->getEntryInList(GUI::line - 1));
 			}
 
+			if (!isFolder) {
+				setColor(COLOR::BLACK, COLOR::LIGHT_RED);
+				gotoXY(0, GUI::line + 2);
+				printSpace(23);  cout << " Program: This software does not support displaying the content of this file."; printSpace(23);
+				setColor(COLOR::WHITE, COLOR::BLACK);
+				isFolder = true;
+			}
+
 			// Refresh menu
 			if (!move) {
 				updateMenu(f);
-				if (!isFolder) {
-					setColor(COLOR::BLACK, COLOR::LIGHT_RED);
-					gotoXY(0, GUI::line + 3);
-					cout << " Program: This software does not support displaying the content of this file."; printSpace(122 - 76);
-					setColor(COLOR::WHITE, COLOR::BLACK);
-					isFolder = true;
-				}
 			}
 			else move = true;
 		}
