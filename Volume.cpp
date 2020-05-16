@@ -623,6 +623,13 @@ void Volume::navigate(Entry* f) {
 				isFolder = true;
 			}
 
+			// ========== INSTRUCTION ==========
+			if (GetKeyState(VK_F1) & 0x8000) {
+				while (GetKeyState(VK_F1) & 0x8000) {};
+
+				GUI::instructionScreen();
+			}
+
 			// Refresh menu
 			if (!move) {
 				updateMenu(f);
