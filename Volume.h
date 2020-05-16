@@ -11,7 +11,9 @@
 class Volume
 {
 public:
-	Volume();
+	static string const Extension;
+
+public:
 	Volume(string const& volumeFilePath);
 	~Volume();
 

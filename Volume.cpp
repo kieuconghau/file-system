@@ -1,11 +1,8 @@
 #include "Volume.h"
 
-Volume::Volume() : VolumeInfo(), EntryTable()
-{
-	this->Path = "";
-}
+string const Volume::Extension = ".nht";
 
-Volume::Volume(string const& volumeFilePath)
+Volume::Volume(string const& volumeFilePath) : VolumeInfo(), EntryTable()
 {
 	this->initialize(volumeFilePath);
 }
@@ -64,12 +61,21 @@ void Volume::importGUI(Entry* parent)
 	GUI::printTextAtMid("===== IMPORT A FILE/FOLDER =====");
 	cout << "\n\n";
 
-	cout << "  Program: Input a path of a folder or a file that you want to import to this volume." << "\n\n";
-	cout << "  User: ";
+	cout << "  Program: * Input a path of a folder or a file that you want to import to this volume" << "\n";
+	cout << "           * Do not input anything then press Enter to";
+	setColor(COLOR::YELLOW, COLOR::BLACK);
+	cout << " EXIT";
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	
+	cout << "\n\n" << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
 	getline(cin, str);
+
+	if (str == "") {
+		return;
+	}
 
 	if (this->import(str, parent)) {
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
@@ -338,15 +344,24 @@ void Volume::exportGUI(Entry* f) {
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	cout << f->getPath() << endl;
+	cout << "\n";
 
 	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-	cout << "  Program: Input a path of a folder that you want to "
-		<< "export this file/folder to." << "\n\n";
-	cout << "  User: ";
+	cout << "  Program: * Input a path of a folder that you want to export this file/folder to" << "\n";
+	cout << "           * Do not input anything then press Enter to";
+	setColor(COLOR::YELLOW, COLOR::BLACK);
+	cout << " EXIT";
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+
+	cout << "\n\n" << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
 	getline(cin, str);
+
+	if (str == "") {
+		return;
+	}
 
 	if (this->exportFile(f, str)) {
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
@@ -472,8 +487,8 @@ bool Volume::isVolumeFile()
 		this->seekToHeadOfVolumeInfo_g(file);
 		this->VolumeInfo.read(file);
 		isVF = this->VolumeInfo.checkSignature(file);
+		file.close();
 	}
-	file.close();
 
 	return isVF;
 }
@@ -595,7 +610,9 @@ void Volume::navigate(Entry* f) {
 			if ((GetKeyState(0x45) & 0x8000)) {	// E
 				while ((GetKeyState(0x45) & 0x8000)) {};
 
-				this->exportGUI(f->getEntryInList(GUI::line - 1));
+				if (GUI::line != 0) {
+					this->exportGUI(f->getEntryInList(GUI::line - 1));
+				}
 			}
 
 			if (!isFolder) {

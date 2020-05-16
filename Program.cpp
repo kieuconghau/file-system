@@ -33,28 +33,39 @@ void Program::openVolume()
 
 		// Input
 		if (this->Cache.isEmpty()) {
-			cout << "  Program: Input a path to open a volume." << "\n";
+			cout << "  Program: * Input a path to open a volume" << "\n";
 		}
 		else {
-			cout << "  Program: * Input a path to open a volume OR" << "\n";
+			cout << "  Program: * Input a path to open a volume" << "\n";
 			cout << "           * Input";
 			setColor(COLOR::WHITE, COLOR::BLACK);
 			cout << " <i> ";
 			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-			cout << "to open a recent volume (i is the index in the above list) OR" << "\n";
+			cout << "to open a recent volume (i is the index in the above list)" << "\n";
 			cout << "           * Input";
 			setColor(COLOR::WHITE, COLOR::BLACK);
 			cout << " <clear cache> ";
 			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-			cout << "to clear the above list." << "\n";
+			cout << "to clear the above list" << "\n";
 		}
-		cout << "\n" << "  User: ";
+
+		cout << "           * Do not input anything then press Enter to";
+		setColor(COLOR::YELLOW, COLOR::BLACK);
+		cout << " EXIT";
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+
+		cout << "\n\n" << "  User: ";
 
 		setColor(COLOR::WHITE, COLOR::BLACK);
 		string str;
 		getline(cin, str);
 
-		// If the input is <clear cache>
+		// If the input is ""
+		if (str == "") {
+			return;
+		}
+
+		// If the input is "<clear cache>"
 		if (str == "<clear cache>") {
 			this->Cache.clear();
 			system("cls");
@@ -96,15 +107,24 @@ void Program::createVolume()
 	cout << "\n\n";
 
 	// Input a path
-	cout << "  Program: Input a path to create a volume." << "\n\n";
-	cout << "  User: ";
+	cout << "  Program: * Input a path to create a volume" << "\n";
+	cout << "           * Do not input anything then press Enter to";
+	setColor(COLOR::YELLOW, COLOR::BLACK);
+	cout << " EXIT";
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	cout << "\n\n" << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string volumeFilePath;
 	getline(cin, volumeFilePath);
 
+	// If the input is ""
+	if (volumeFilePath == "") {
+		return;
+	}
+
 	// Create this volume
-	this->initializeVolume(volumeFilePath);
+	this->initializeVolume(volumeFilePath + Volume::Extension);
 
 	if (this->Vol->create()) {
 		this->Cache.add(this->Vol->getPath());
