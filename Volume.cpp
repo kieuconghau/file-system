@@ -103,10 +103,8 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 		throw "Volume Path Error";
 	}
 
-	// Step 1: We'll get and store the info and data of the new file(s)
+	// Step 1: We'll get and store the info of the new file(s)
 	// into our program.
-
-	// Step 1.1: Get the info.
 
 	// If the file we inputted is just a file (not a folder),
 	// we'll get only the info of that file. But if the file
@@ -249,41 +247,8 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 		file_entry_vector[i].standardizeAfterImport(parent);
 	}
 
-	// Step 1.2: Get the data
-
-	// Now we'll get the data of the files among the group
-	// of files and folders in the directory tree we've just
-	// finished traversing.
-	// (Again, if we inputted in a normal file (not a folder)
-	// then we'll just get the data of that file only.)
-
-	vector<FileData> file_data_vector;
-
-	ifstream file_stream;
-
-	for (size_t i = 0; i < file_entry_vector.size(); i++) {
-
-		// We only get the data of the files which are not folders.
-		if (file_entry_vector[i].getIsFolder() == false) {
-
-			file_stream.open(file_entry_vector[i].getFullPathOutside(), ios::binary);
-			if (file_stream.is_open() == false) continue;
-
-			FileData file_data(file_entry_vector[i].getSizeData());
-			
-			file_data.read(file_stream);
-			file_data_vector.push_back(file_data);
-
-			file_stream.close();
-
-
-		}
-	}
-
-	// All the info and data of the new file(s) have been prepared
-	// and are waiting to be written to the volume.
-
-	// Step 2: Write the info and data of the new file(s) into the volume.
+	// Step 2: Get the data of new file(s),
+	// and write both the info and data of the new file(s) into the volume.
 
 	if (this->isEmpty() == false) {	// If the volume is not empty.
 
@@ -307,9 +272,33 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	// - [Volume Info Area]"
 	// and update the volume's info in the Volume Info Area.
 
-	// Write data of the new file(s).
-	for (size_t i = 0; i < file_data_vector.size(); i++) {
-		file_data_vector[i].write(volumeStream);
+	// Get data of the new file(s), and write to volume.
+	for (size_t i = 0; i < file_entry_vector.size(); i++) {
+
+		// We only get the data of the files which are not folders.
+		if (file_entry_vector[i].getIsFolder() == false) {
+			ifstream import_file_stream;
+			import_file_stream.open(file_entry_vector[i].getFullPathOutside(),
+				ios::binary);
+
+			if (import_file_stream.is_open() == true) {
+				const int BUFFER_SIZE = 4096;
+				char buffer[BUFFER_SIZE];
+
+				for (int i = 0;
+					i < file_entry_vector[i].getSizeData() / BUFFER_SIZE;
+					i++) {
+					import_file_stream.read(buffer, BUFFER_SIZE);
+					volumeStream.write(buffer, BUFFER_SIZE);
+				}
+				import_file_stream.read(buffer,
+					file_entry_vector[i].getSizeData() % BUFFER_SIZE);
+				volumeStream.write(buffer,
+					file_entry_vector[i].getSizeData() % BUFFER_SIZE);
+
+				import_file_stream.close();
+			}
+		}
 	}
 
 	// Update the offset of Entry Table.
@@ -375,7 +364,8 @@ void Volume::exportGUI(Entry* f) {
 		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
 		cout << "\n\n" << "  Program: Can not export this file/folder to "
 			<< "the specified path." << "\n\n";
-		cout << "           Maybe the specified path does not exist." << "\n\n";
+		cout << "           Maybe the specified path does not exist OR" << "\n\n";
+		cout << "           This file or folder has the same name with the one at the specified path." << "\n\n";
 		cout << "           Please check again!" << "\n\n";
 		cout << "  ";
 		system("pause");
@@ -394,6 +384,16 @@ bool Volume::exportFile(Entry* export_file_entry,
 	_WIN32_FIND_DATAA ffd;
 	HANDLE hFile = FindFirstFileA(destination_path.c_str(), &ffd);
 	if (hFile == INVALID_HANDLE_VALUE) {
+		volume_stream.close();
+		return false;
+	}
+
+	// Check if there's already a file/folder with same name
+	// at the destination path.
+	string file_path = destination_path + "\\"
+		+ export_file_entry->getName();
+	hFile = FindFirstFileA(file_path.c_str(), &ffd);
+	if (hFile != INVALID_HANDLE_VALUE) {
 		volume_stream.close();
 		return false;
 	}
