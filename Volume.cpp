@@ -71,6 +71,7 @@ void Volume::importGUI(Entry* parent)
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, str);
 
 	if (str == "") {
@@ -357,6 +358,7 @@ void Volume::exportGUI(Entry* f) {
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, str);
 
 	if (str == "") {
@@ -621,6 +623,13 @@ void Volume::navigate(Entry* f) {
 				printSpace(23);  cout << " Program: This software does not support displaying the content of this file."; printSpace(23);
 				setColor(COLOR::WHITE, COLOR::BLACK);
 				isFolder = true;
+			}
+
+			// ========== INSTRUCTION ==========
+			if (GetKeyState(VK_F1) & 0x8000) {
+				while (GetKeyState(VK_F1) & 0x8000) {};
+
+				GUI::instructionScreen();
 			}
 
 			// Refresh menu
