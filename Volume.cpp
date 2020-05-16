@@ -375,7 +375,8 @@ void Volume::exportGUI(Entry* f) {
 		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
 		cout << "\n\n" << "  Program: Can not export this file/folder to "
 			<< "the specified path." << "\n\n";
-		cout << "           Maybe the specified path does not exist." << "\n\n";
+		cout << "           Maybe the specified path does not exist OR" << "\n\n";
+		cout << "           This file or folder has the same name with the one at the specified path." << "\n\n";
 		cout << "           Please check again!" << "\n\n";
 		cout << "  ";
 		system("pause");
@@ -394,6 +395,16 @@ bool Volume::exportFile(Entry* export_file_entry,
 	_WIN32_FIND_DATAA ffd;
 	HANDLE hFile = FindFirstFileA(destination_path.c_str(), &ffd);
 	if (hFile == INVALID_HANDLE_VALUE) {
+		volume_stream.close();
+		return false;
+	}
+
+	// Check if there's already a file/folder with same name
+	// at the destination path.
+	string file_path = destination_path + "\\"
+		+ export_file_entry->getName();
+	hFile = FindFirstFileA(file_path.c_str(), &ffd);
+	if (hFile != INVALID_HANDLE_VALUE) {
 		volume_stream.close();
 		return false;
 	}
