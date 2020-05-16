@@ -71,6 +71,7 @@ void Volume::importGUI(Entry* parent)
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, str);
 
 	if (str == "") {
@@ -357,6 +358,7 @@ void Volume::exportGUI(Entry* f) {
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, str);
 
 	if (str == "") {
