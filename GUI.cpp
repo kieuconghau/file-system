@@ -20,6 +20,8 @@ void GUI::clearBackground() {
     printSpace(123); 
     gotoXY(0, line + 25);
     printSpace(123);
+    gotoXY(0, 31);
+    printSpace(123);
     gotoXY(0, 0);
 
     setColor(15, 0);
@@ -71,14 +73,14 @@ string GUI::enterPassword() {
         setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
         cout << "  Re-enter:  ";      repw = GUI::hidePassword();      cout << endl;
 
-        if (pw.compare(repw) == 0) {
+        if (pw.compare(repw) == 0 && pw.length() >= 8) {
             break;
         }
         else {
             clrscr();
             setColor(COLOR::LIGHT_RED, COLOR::BLACK);
             gotoXY(0, 0);
-            cout << "  Error: Password is not the same. " << endl;
+            cout << "  Error: Password must be the same and have at least 8 characters. " << endl;
             setColor(COLOR::WHITE, COLOR::BLACK);
         }
     }
@@ -175,4 +177,17 @@ void GUI::printTextAtMid(string const& text, size_t const& left, size_t const& r
 {
     gotoXY((right - left - text.length()) / 2, whereY());
     cout << text;
+}
+
+void GUI::displayParent(bool selected) {
+    if (selected) setColor(15, 1);
+
+    cout << " .."; printSpace(120);
+
+    int y = whereY();
+    gotoXY(73, y);
+    cout << "Folder    ";
+    gotoXY(0, y + 1);
+
+    if (selected) setColor(15, 0);
 }

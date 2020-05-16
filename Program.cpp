@@ -22,6 +22,8 @@ void Program::run()
 
 void Program::openVolume()
 {
+	system("cls");
+
 	while (true) {
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 		GUI::printTextAtMid("===== OPEN A VOLUME =====");
@@ -33,28 +35,40 @@ void Program::openVolume()
 
 		// Input
 		if (this->Cache.isEmpty()) {
-			cout << "  Program: Input a path to open a volume." << "\n";
+			cout << "  Program: * Input a path to open a volume" << "\n";
 		}
 		else {
-			cout << "  Program: * Input a path to open a volume OR" << "\n";
+			cout << "  Program: * Input a path to open a volume" << "\n\n";
 			cout << "           * Input";
 			setColor(COLOR::WHITE, COLOR::BLACK);
 			cout << " <i> ";
 			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-			cout << "to open a recent volume (i is the index in the above list) OR" << "\n";
+			cout << "to open a recent volume (i is the index in the above list)" << "\n\n";
 			cout << "           * Input";
 			setColor(COLOR::WHITE, COLOR::BLACK);
 			cout << " <clear cache> ";
 			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-			cout << "to clear the above list." << "\n";
+			cout << "to clear the above list" << "\n\n";
 		}
-		cout << "\n" << "  User: ";
+
+		cout << "           * Do not input anything then press Enter to";
+		setColor(COLOR::YELLOW, COLOR::BLACK);
+		cout << " EXIT";
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+
+		cout << "\n\n" << "  User: ";
 
 		setColor(COLOR::WHITE, COLOR::BLACK);
 		string str;
+		FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 		getline(cin, str);
 
-		// If the input is <clear cache>
+		// If the input is ""
+		if (str == "") {
+			return;
+		}
+
+		// If the input is "<clear cache>"
 		if (str == "<clear cache>") {
 			this->Cache.clear();
 			system("cls");
@@ -91,29 +105,65 @@ void Program::openVolume()
 
 void Program::createVolume()
 {
+	system("cls");
+
 	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 	GUI::printTextAtMid("===== CREATE A VOLUME =====");
 	cout << "\n\n";
 
 	// Input a path
-	cout << "  Program: Input a path to create a volume." << "\n\n";
-	cout << "  User: ";
+	cout << "  Program: * Input a path to create a volume" << "\n\n";
+	cout << "           * Do not input anything then press Enter to";
+	setColor(COLOR::YELLOW, COLOR::BLACK);
+	cout << " EXIT";
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	cout << "\n\n" << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string volumeFilePath;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, volumeFilePath);
 
+	// If the input is ""
+	if (volumeFilePath == "") {
+		return;
+	}
+
 	// Create this volume
-	this->initializeVolume(volumeFilePath);
+	this->initializeVolume(volumeFilePath + Volume::Extension);
 
 	if (this->Vol->create()) {
 		this->Cache.add(this->Vol->getPath());
 
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 		cout << "\n";
-		cout << "  Program: The new volume is created successfully!" << "\n\n";
-		cout << "  ";
-		system("pause");
+		cout << "  Program: * The new volume is created successfully!" << "\n\n";
+		cout << "           * Press Enter to";
+		setColor(COLOR::YELLOW, COLOR::BLACK);
+		cout << " OPEN ";
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		cout << "this volume" << "\n\n";
+		cout << "           * Press any key except for Enter to";
+		setColor(COLOR::YELLOW, COLOR::BLACK);
+		cout << " EXIT";
+		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+		cout << "\n\n";
+
+		while (true) {
+			if (_kbhit()) {
+				FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+				if ((GetKeyState(VK_RETURN) & 0x8000)) {
+					while ((GetKeyState(VK_RETURN) & 0x8000)) {};
+					
+					system("cls");
+					this->Vol->open();
+					break;
+				}
+				else {
+					break;
+				}
+			}
+		}
 	}
 	else {
 		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
@@ -269,3 +319,4 @@ void Program::homeNavigate() {
 
 	}
 }
+

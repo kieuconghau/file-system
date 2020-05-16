@@ -1,11 +1,8 @@
 #include "Volume.h"
 
-Volume::Volume() : VolumeInfo(), EntryTable()
-{
-	this->Path = "";
-}
+string const Volume::Extension = ".nht";
 
-Volume::Volume(string const& volumeFilePath)
+Volume::Volume(string const& volumeFilePath) : VolumeInfo(), EntryTable()
 {
 	this->initialize(volumeFilePath);
 }
@@ -64,12 +61,22 @@ void Volume::importGUI(Entry* parent)
 	GUI::printTextAtMid("===== IMPORT A FILE/FOLDER =====");
 	cout << "\n\n";
 
-	cout << "  Program: Input a path of a folder or a file that you want to import to this volume." << "\n\n";
-	cout << "  User: ";
+	cout << "  Program: * Input a path of a folder or a file that you want to import to this volume" << "\n";
+	cout << "           * Do not input anything then press Enter to";
+	setColor(COLOR::YELLOW, COLOR::BLACK);
+	cout << " EXIT";
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+	
+	cout << "\n\n" << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, str);
+
+	if (str == "") {
+		return;
+	}
 
 	if (this->import(str, parent)) {
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
@@ -338,15 +345,25 @@ void Volume::exportGUI(Entry* f) {
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	cout << f->getPath() << endl;
+	cout << "\n";
 
 	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
-	cout << "  Program: Input a path of a folder that you want to "
-		<< "export this file/folder to." << "\n\n";
-	cout << "  User: ";
+	cout << "  Program: * Input a path of a folder that you want to export this file/folder to" << "\n";
+	cout << "           * Do not input anything then press Enter to";
+	setColor(COLOR::YELLOW, COLOR::BLACK);
+	cout << " EXIT";
+	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
+
+	cout << "\n\n" << "  User: ";
 
 	setColor(COLOR::WHITE, COLOR::BLACK);
 	string str;
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	getline(cin, str);
+
+	if (str == "") {
+		return;
+	}
 
 	if (this->exportFile(f, str)) {
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
@@ -472,8 +489,8 @@ bool Volume::isVolumeFile()
 		this->seekToHeadOfVolumeInfo_g(file);
 		this->VolumeInfo.read(file);
 		isVF = this->VolumeInfo.checkSignature(file);
+		file.close();
 	}
-	file.close();
 
 	return isVF;
 }
@@ -489,13 +506,18 @@ void Volume::navigate(Entry* f) {
 
 	char x = 0;
 	bool back = false;
+	bool isFolder = true;
+	bool move = false;
 
 	// Ridiculous error fix
 	GUI::clearBackground();
 
 	// Reset line
 	GUI::reset();
+	//GUI::line = 4;
 	this->updateMenu(f);
+
+
 
 	while (true) {
 
@@ -505,22 +527,47 @@ void Volume::navigate(Entry* f) {
 			// ============= ENTER =============
 			if (GetKeyState(0x0D) & 0x8000) {	// ENTER
 				while ((GetAsyncKeyState(VK_RETURN) & 0x8000)) {};
-				this->enterFolder(f, back);
+				isFolder = this->enterFolder(f, back);
 			}
 
 			// ============= UP =============
 			if (GetKeyState(VK_UP) & 0x8000) {
 				if (GUI::line == 0) {
+					gotoXY(0, 2); GUI::displayParent(false);
 					GUI::line = f->getListSize();
 				}
-				else GUI::line--;
+				else {
+					gotoXY(0, GUI::line + 2); f->getEntryInList(GUI::line - 1)->display(false);
+					GUI::line--;
+				}
 				GUI::line %= f->getListSize() + 1;
+
+				if (GUI::line == 0) {
+					gotoXY(0, 2); GUI::displayParent(true);
+				}
+				else {
+					gotoXY(0, GUI::line + 2); f->getEntryInList(GUI::line - 1)->display(true);
+				}
+				move = true;
 			}
 
 			// ============= DOWN =============
 			if (GetKeyState(VK_DOWN) & 0x8000) {
+				if (GUI::line == 0) {
+					gotoXY(0, 2); GUI::displayParent(false);
+				}
+				else {
+					gotoXY(0, GUI::line + 2); f->getEntryInList(GUI::line - 1)->display(false);
+				}
 				GUI::line++;
 				GUI::line %= f->getListSize() + 1;
+				if (GUI::line == 0) {
+					gotoXY(0, 2); GUI::displayParent(true);
+				}
+				else {
+					gotoXY(0, GUI::line + 2); f->getEntryInList(GUI::line - 1)->display(true);
+				}
+				move = true;
 			}
 
 			// ============= BACK =============
@@ -565,13 +612,31 @@ void Volume::navigate(Entry* f) {
 			if ((GetKeyState(0x45) & 0x8000)) {	// E
 				while ((GetKeyState(0x45) & 0x8000)) {};
 
-				this->exportGUI(f->getEntryInList(GUI::line - 1));
+				if (GUI::line != 0) {
+					this->exportGUI(f->getEntryInList(GUI::line - 1));
+				}
+			}
+
+			if (!isFolder) {
+				setColor(COLOR::BLACK, COLOR::LIGHT_RED);
+				gotoXY(0, GUI::line + 2);
+				printSpace(23);  cout << " Program: This software does not support displaying the content of this file."; printSpace(23);
+				setColor(COLOR::WHITE, COLOR::BLACK);
+				isFolder = true;
+			}
+
+			// ========== INSTRUCTION ==========
+			if (GetKeyState(VK_F1) & 0x8000) {
+				while (GetKeyState(VK_F1) & 0x8000) {};
+
+				GUI::instructionScreen();
 			}
 
 			// Refresh menu
-			if (!GUI::esc) {
+			if (!move) {
 				updateMenu(f);
 			}
+			else move = true;
 		}
 
 
@@ -583,6 +648,7 @@ void Volume::navigate(Entry* f) {
 void Volume::updateMenu(Entry* entry)
 {
 	clrscr();
+	GUI::clearBackground();
 
 	setColor(0, 10);
 	cout << " Path ";
@@ -598,19 +664,22 @@ void Volume::updateMenu(Entry* entry)
 	entry->show(GUI::line);
 }
 
-void Volume::enterFolder(Entry* parent, bool& back)
+
+bool Volume::enterFolder(Entry* parent, bool& back)
 {
 	if (GUI::line == 0) {
 		back = true;
 		GUI::reset();
-		return;
+		return true;
 	}
 
 	string pw;
 
 	Entry* f = parent->getEntryInList(GUI::line - 1);
 
-	if (!f->isFolder()) return;
+	if (!f->isFolder()) {
+		return false;
+	}
 
 	if (f->isLocked()) {
 		clrscr();
@@ -631,6 +700,7 @@ void Volume::enterFolder(Entry* parent, bool& back)
 	else {
 		this->navigate(f);
 	}
+	return true;
 }
 
 void Volume::setPassword(Entry* f)

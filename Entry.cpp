@@ -278,9 +278,11 @@ void Entry::display(bool selected) {
 	gotoXY(whereX() + 10, whereY());
 
 	//Modified
-	//cout << "   " << date << " " << time;
-	//printSpace(27 - date.length() - 1 - time.length());
-	printSpace(30);
+	cout << "   ";
+	this->displayModDate();
+	cout << " ";
+	this->displayModTime();
+	printSpace(27 - 19);
 	
 	//Password
 	if (isLocked()) {
@@ -351,3 +353,63 @@ bool Entry::checkPassword(string pw) {
 	return false;
 }
 
+void Entry::displayModDate() {
+	uint8_t d, m, y;
+	d = m = y = 0;
+	string date;
+
+	// Day
+	d = this->ModifiedDate & 31;
+	if (d < 10) {
+		cout << "0" << (int)d << "/";
+	}
+	else {
+		cout << (int)d << "/";
+	}
+
+	// Month
+	m = (this->ModifiedDate >> 5) & 15;
+	if (m < 10) {
+		cout << "0" << (int)m << "/";
+	}
+	else {
+		cout << (int)m << "/";
+	}
+
+	// Year
+	y = (this->ModifiedDate >> 9);
+	cout << ((int)y + 1980);
+
+}
+
+void Entry::displayModTime() {
+	uint8_t hr, m, s;
+
+	// Hour
+	hr = (this->ModifiedTime >> 11);
+	if (hr < 10) {
+		cout << "0" << (int)hr << ":";
+	}
+	else {
+		cout << (int)hr << ":";
+	}
+
+	// Min
+	m = (this->ModifiedTime >> 5) & 63;
+	if (m < 10) {
+		cout << "0" << (int)m << ":";
+	}
+	else {
+		cout << (int)m << ":";
+	}
+
+	// Sec
+	s = (this->ModifiedTime & 31) << 1;
+	if (s < 10) {
+		cout << "0" << (int)s;
+	}
+	else {
+		cout << (int)s;
+	}
+
+}

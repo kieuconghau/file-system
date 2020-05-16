@@ -45,6 +45,8 @@ void setColor(COLOR textColor, COLOR bgColor);
 string addSalt(string pw);
 string addPepper(string pw);
 
+string convert(uint8_t *str);
+
 /*
 Name         | Value
 			 |

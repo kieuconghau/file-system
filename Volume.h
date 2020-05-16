@@ -11,7 +11,9 @@
 class Volume
 {
 public:
-	Volume();
+	static string const Extension;
+
+public:
 	Volume(string const& volumeFilePath);
 	~Volume();
 
@@ -33,7 +35,7 @@ private:
 	void performFunctions();
 	void navigate(Entry* entry);
 	void updateMenu(Entry* entry);
-	void enterFolder(Entry* parent, bool& back);
+	bool enterFolder(Entry* parent, bool& back);
 
 	void setPassword(Entry* f);
 	void writePasswordChange();

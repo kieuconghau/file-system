@@ -88,9 +88,11 @@ void Cache::showListOfRecentlyOpenedVolume() const
 	if (!this->isEmpty()) {
 		cout << "  List of recent volumes:" << "\n";
 		for (size_t i = 0; i < this->VolumePathList.size(); ++i) {
+			setColor(COLOR::WHITE, COLOR::BLACK);
 			cout << "    <" << i + 1 << "> ";
 			gotoXY(10, whereY());
 			cout << this->VolumePathList[i] << "\n";
+			setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 		}
 	}
 }
