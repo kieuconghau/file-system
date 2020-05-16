@@ -124,6 +124,8 @@ void GUI::printProgress(string content, double percentage) {
 }
 
 void GUI::instructionScreen() {
+    clrscr();
+    GUI::clearBackground();
 
     setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
     gotoXY(0, 0);
@@ -171,6 +173,7 @@ void GUI::instructionScreen() {
     gotoXY(x2, 19); cout << "Show this instruction.";
 
     gotoXY(0, 21); cout << "  ";  system("pause");
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 }
 
 void GUI::printTextAtMid(string const& text, size_t const& left, size_t const& right)

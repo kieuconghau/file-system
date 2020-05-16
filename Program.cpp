@@ -278,8 +278,9 @@ void Program::homeNavigate() {
 					back = true;
 					break;
 				}
+				GUI::clearBackground();
 				GUI::reset();
-
+				
 				GUI::esc = false;
 			}
 
@@ -309,6 +310,7 @@ void Program::homeNavigate() {
 			if (!GUI::esc) {
 				clrscr();
 				GUI::clearBackground();
+				
 				homeScreen();
 			}
 

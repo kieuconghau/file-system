@@ -270,9 +270,15 @@ void Entry::display(bool selected) {
 	printSpace(49 - Name.length());
 
 	//Size
-	string s = numCommas(this->SizeData);
-	printSpace(20 - s.length());
-	cout << s << "   ";
+	if (!isFolder()) {
+		string s = numCommas(this->SizeData);
+		printSpace(20 - s.length());
+		cout << s << "   ";
+	}
+	else {
+		printSpace(23);
+	}
+	
 
 	//Type
 	gotoXY(whereX() + 10, whereY());

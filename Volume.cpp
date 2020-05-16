@@ -333,7 +333,7 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 
 	return true;
 }
-
+ 
 void Volume::exportGUI(Entry* f) {
 	system("cls");
 
@@ -507,7 +507,6 @@ void Volume::navigate(Entry* f) {
 	char x = 0;
 	bool back = false;
 	bool isFolder = true;
-	bool move = false;
 
 	// Ridiculous error fix
 	GUI::clearBackground();
@@ -528,6 +527,7 @@ void Volume::navigate(Entry* f) {
 			if (GetKeyState(0x0D) & 0x8000) {	// ENTER
 				while ((GetAsyncKeyState(VK_RETURN) & 0x8000)) {};
 				isFolder = this->enterFolder(f, back);
+				updateMenu(f);
 			}
 
 			// ============= UP =============
@@ -548,7 +548,6 @@ void Volume::navigate(Entry* f) {
 				else {
 					gotoXY(0, GUI::line + 2); f->getEntryInList(GUI::line - 1)->display(true);
 				}
-				move = true;
 			}
 
 			// ============= DOWN =============
@@ -567,7 +566,6 @@ void Volume::navigate(Entry* f) {
 				else {
 					gotoXY(0, GUI::line + 2); f->getEntryInList(GUI::line - 1)->display(true);
 				}
-				move = true;
 			}
 
 			// ============= BACK =============
@@ -575,6 +573,7 @@ void Volume::navigate(Entry* f) {
 				while ((GetAsyncKeyState(VK_BACK) & 0x8000)) {};
 
 				back = true;
+				GUI::clearBackground();
 				GUI::reset();
 			}
 
@@ -592,6 +591,7 @@ void Volume::navigate(Entry* f) {
 				if (GUI::line != 0) {
 					this->setPassword(f->getEntryInList(GUI::line - 1));
 				}
+				updateMenu(f);
 			}
 
 			// ========== DELETE A FILE/FOLDER ==========
@@ -599,6 +599,7 @@ void Volume::navigate(Entry* f) {
 				while ((GetKeyState(0x44) & 0x8000) || (GetKeyState(0x2E) & 0x8000)) {};
 
 				this->deleteOnVolume(f);
+				updateMenu(f);
 			}
 
 			// ========== IMPORT ==========
@@ -606,6 +607,7 @@ void Volume::navigate(Entry* f) {
 				while ((GetKeyState(0x49) & 0x8000)) {};
 
 				this->importGUI(f);
+				updateMenu(f);
 			}
 
 			// ========== EXPORT ==========
@@ -615,6 +617,15 @@ void Volume::navigate(Entry* f) {
 				if (GUI::line != 0) {
 					this->exportGUI(f->getEntryInList(GUI::line - 1));
 				}
+				updateMenu(f);
+			}
+
+			// ========== INSTRUCTION ==========
+			if (GetKeyState(VK_F1) & 0x8000) {
+				while (GetKeyState(VK_F1) & 0x8000) {};
+
+				GUI::instructionScreen();
+				updateMenu(f);
 			}
 
 			if (!isFolder) {
@@ -624,19 +635,6 @@ void Volume::navigate(Entry* f) {
 				setColor(COLOR::WHITE, COLOR::BLACK);
 				isFolder = true;
 			}
-
-			// ========== INSTRUCTION ==========
-			if (GetKeyState(VK_F1) & 0x8000) {
-				while (GetKeyState(VK_F1) & 0x8000) {};
-
-				GUI::instructionScreen();
-			}
-
-			// Refresh menu
-			if (!move) {
-				updateMenu(f);
-			}
-			else move = true;
 		}
 
 
@@ -658,7 +656,7 @@ void Volume::updateMenu(Entry* entry)
 
 	setColor(0, 7);
 	gotoXY(0, 1);
-	cout << " Name"; printSpace(42); cout << " | "; printSpace(16); cout << "Size | Type"; printSpace(6); cout << " | Modified"; printSpace(16); cout << " |  Password " << endl;
+	cout << " Name"; printSpace(42); cout << " | "; printSpace(9); cout << "Size(bytes) | Type"; printSpace(6); cout << " | Modified"; printSpace(16); cout << " |  Password " << endl;
 	setColor(15, 0);
 
 	entry->show(GUI::line);
