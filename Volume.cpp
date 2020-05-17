@@ -324,8 +324,24 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 }
  
 void Volume::exportGUI(Entry* f) {
-	system("cls");
+	string pw;
 
+	if (f->isLocked()) {
+		clrscr();
+		GUI::clearBackground();
+
+		pw = GUI::enterPassword();
+
+		if (!f->checkPassword(pw)) {
+			setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+			gotoXY(0, 5); cout << "  Error: Invalid password. Access folder denied. ";
+			gotoXY(0, 7); cout << "  "; system("pause");
+			setColor(COLOR::WHITE, COLOR::BLACK);
+			return;
+		}
+	}
+
+	system("cls");
 	setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 	GUI::printTextAtMid("===== EXPORT A FILE/FOLDER =====");
 	cout << "\n\n";
