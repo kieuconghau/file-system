@@ -285,9 +285,9 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 				const int BUFFER_SIZE = 4096;
 				char buffer[BUFFER_SIZE];
 
-				for (int i = 0;
-					i < file_entry_vector[i].getSizeData() / BUFFER_SIZE;
-					i++) {
+				for (int j = 0;
+					j < file_entry_vector[i].getSizeData() / BUFFER_SIZE;
+					j++) {
 					import_file_stream.read(buffer, BUFFER_SIZE);
 					volumeStream.write(buffer, BUFFER_SIZE);
 				}
