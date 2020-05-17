@@ -354,25 +354,35 @@ void Volume::exportGUI(Entry* f) {
 		return;
 	}
 
-	if (this->exportFile(f, str)) {
+	ExportState state = this->exportFile(f, str);
+	if (state == ExportState::SUCCESS) {
 		setColor(COLOR::LIGHT_CYAN, COLOR::BLACK);
 		cout << "\n\n" << "  Program: Export successfully." << "\n\n";
-		cout << "  ";
-		system("pause");
+	}
+	else if (state == ExportState::NOT_TOTALLY) {
+		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+		cout << "\n\n" << "  Program: Can not export this file/folder tottaly because there are still some files/folders are secured with password.";
+		cout << "\n\n" << "           To export the locked files/folders, please unlock them first." << "\n\n";
+	}
+	else if (state == ExportState::SAME_NAME) {
+		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+		cout << "\n\n" << "  Program: This file or folder has the same name with the one at the specified path.";
+		cout << "\n\n" << "           Please check again!" << "\n\n";
+	}
+	else if (state == ExportState::BAD_PATH) {
+		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
+		cout << "\n\n" << "  Program: The specified path does not exist";
+		cout << "\n\n" << "           Please check again!" << "\n\n";
 	}
 	else {
-		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
-		cout << "\n\n" << "  Program: Can not export this file/folder to "
-			<< "the specified path." << "\n\n";
-		cout << "           Maybe the specified path does not exist OR" << "\n\n";
-		cout << "           This file or folder has the same name with the one at the specified path." << "\n\n";
-		cout << "           Please check again!" << "\n\n";
-		cout << "  ";
-		system("pause");
+		throw "Enum Class Error";
 	}
+
+	cout << "  ";
+	system("pause");
 }
 
-bool Volume::exportFile(Entry* export_file_entry,
+ExportState Volume::exportFile(Entry* export_file_entry,
 	string const& destination_path) {
 
 	fstream volume_stream(this->Path, ios::in, ios_base::binary);
@@ -385,7 +395,7 @@ bool Volume::exportFile(Entry* export_file_entry,
 	HANDLE hFile = FindFirstFileA(destination_path.c_str(), &ffd);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		volume_stream.close();
-		return false;
+		return ExportState::BAD_PATH;
 	}
 
 	// Check if there's already a file/folder with same name
@@ -395,12 +405,14 @@ bool Volume::exportFile(Entry* export_file_entry,
 	hFile = FindFirstFileA(file_path.c_str(), &ffd);
 	if (hFile != INVALID_HANDLE_VALUE) {
 		volume_stream.close();
-		return false;
+		return ExportState::SAME_NAME;
 	}
 
 	// We use "level order tree traversal" algorithm to travel to
 	// each and every subfiles and subfolders of the inputted file
 	// (if the inputted file is actually a folder).
+
+	ExportState state = ExportState::SUCCESS;
 
 	queue<Entry*> export_file_entry_queue;
 	export_file_entry_queue.push(export_file_entry);
@@ -408,6 +420,11 @@ bool Volume::exportFile(Entry* export_file_entry,
 	while (export_file_entry_queue.empty() == false) {
 		Entry* file_entry = export_file_entry_queue.front();
 		export_file_entry_queue.pop();
+
+		if (file_entry->isLocked()) {
+			state = ExportState::NOT_TOTALLY;
+			continue;
+		}
 
 		// If the file in question is a normal file (not a folder).
 		if (file_entry->isFolder() == false) {
@@ -470,7 +487,7 @@ bool Volume::exportFile(Entry* export_file_entry,
 	}
 
 	volume_stream.close();
-	return true;
+	return state;
 }
 
 string Volume::getPath() const
