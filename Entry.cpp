@@ -179,7 +179,7 @@ void Entry::seekToEndOfData_p(fstream& file) const
 
 void Entry::getFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd,
 	string file_path, string file_name_in_volume,
-	uint32_t& insert_pos)
+	uint64_t& insert_pos)
 {
 	// File last modification date and time.
 	FileTimeToDosDateTime(&ffd.ftLastWriteTime, &this->ModifiedDate,

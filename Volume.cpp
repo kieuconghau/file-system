@@ -132,7 +132,7 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	// the "file offset" field of the entry. After that,
 	// the value of this variable will be updated.
 
-	uint32_t insert_pos;
+	uint64_t insert_pos;
 	if (this->isEmpty()) {
 		insert_pos = 0;
 	}
