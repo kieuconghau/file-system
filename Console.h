@@ -28,7 +28,7 @@ enum class COLOR {
 };
 
 void printSpace(int n);
-string numCommas(int value);
+string numCommas(uint32_t value);
 
 // Console
 void setColor(int textColor, int bgColor);
