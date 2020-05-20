@@ -88,6 +88,7 @@ void Volume::importGUI(Entry* parent)
 		setColor(COLOR::LIGHT_RED, COLOR::BLACK);
 		cout << "\n\n" << "  Program: Can not import this path into the volume." << "\n\n";
 		cout << "           Maybe this path does not exist OR" << "\n\n";
+		cout << "           The size of this file is equal or larger than 4 GB (4,294,967,296 bytes) OR" << "\n\n";
 		cout << "           This file or folder has the same name with the one in this volume." << "\n\n";
 		cout << "           Please check again!" << "\n\n";
 		cout << "  ";
@@ -139,13 +140,23 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 		insert_pos = this->VolumeInfo.getEntryTableOffset();
 	}
 
+	// Try finding the importing file and getting its info.
 	HANDLE hFile = FindFirstFileA(new_file_path.c_str(), &ffd);
+
+	// If the file can't be found.
 	if (hFile == INVALID_HANDLE_VALUE) {
 		volumeStream.close();
 		return false;
 	}
 
-	// If the current file is actually a folder.
+	// If the size of the file is equal or larger than 4 GB
+	// (= 2^32 = 4,294,967,296 bytes).
+	if (ffd.nFileSizeHigh != 0) {
+		volumeStream.close();
+		return false;
+	}
+
+	// If the importing file is actually a folder.
 	if (ffd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY) {
 		queue<string> folder_path_queue;
 
@@ -234,6 +245,9 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 
 		}
 	}
+
+	// Else, which means the importing file is just a normal file
+	// (not a folder).
 	else {
 		file_entry.getFileInfoAndConvertToEntry(ffd, new_file_path,
 			ffd.cFileName, insert_pos);

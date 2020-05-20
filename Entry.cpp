@@ -186,16 +186,7 @@ void Entry::getFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd,
 		&this->ModifiedTime);
 
 	// File size.
-	// If file size is not greater than (2^32 - 1)
-	// (which means nFileSizeHigh == 0), get
-	// file size in nFileSizeLow and store it.
-	if (ffd.nFileSizeHigh == 0) {
-		this->SizeData = ffd.nFileSizeLow;
-	}
-	// Else, just store file size as (2^32 - 1)
-	else {
-		this->SizeData = UINT32_MAX;
-	}
+	this->SizeData = ffd.nFileSizeLow;
 
 	// File name length.
 	this->PathLen = file_name_in_volume.length();
