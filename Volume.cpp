@@ -252,6 +252,13 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 		file_entry.getFileInfoAndConvertToEntry(ffd, new_file_path,
 			ffd.cFileName, insert_pos);
 		file_entry_vector.push_back(file_entry);
+
+		Entry root = file_entry_vector[0];
+		root.standardizeAfterImport(parent);
+		if (parent->hasChildWithTheSameName(root)) {
+			volumeStream.close();
+			return false;
+		}
 	}
 
 	FindClose(hFile);
