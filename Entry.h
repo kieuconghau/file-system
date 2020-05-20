@@ -75,7 +75,7 @@ protected:
 	uint32_t	SizeData;
 	uint16_t	PathLen;
 	uint16_t	PasswordLen;
-	uint32_t	OffsetData;
+	uint64_t	OffsetData;
 	string		Path;
 	string		Password;
 	/*==========*/

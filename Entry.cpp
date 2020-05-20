@@ -159,12 +159,12 @@ bool Entry::hasChildWithTheSameName(Entry const& entry) const
 
 void Entry::seekToHeadOfData_g(fstream& file) const
 {
-	file.seekg(this->OffsetData);
+	file.seekg((uint64_t)this->OffsetData);
 }
 
 void Entry::seekToHeadOfData_p(fstream& file) const
 {
-	file.seekp(this->OffsetData);
+	file.seekp((uint64_t)this->OffsetData);
 }
 
 void Entry::seekToEndOfData_g(fstream& file) const

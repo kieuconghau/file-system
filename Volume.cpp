@@ -306,7 +306,7 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 				const int BUFFER_SIZE = 4096;
 				char buffer[BUFFER_SIZE];
 
-				for (int j = 0;
+				for (uint64_t j = 0;
 					j < file_entry_vector[i].getSizeData() / BUFFER_SIZE;
 					j++) {
 					import_file_stream.read(buffer, BUFFER_SIZE);
@@ -484,7 +484,7 @@ ExportState Volume::exportFile(Entry* export_file_entry,
 				char buffer[BUFFER_SIZE];
 
 				file_entry->seekToHeadOfData_g(volume_stream);
-				for (int i = 0; i < file_entry->getSizeData() / BUFFER_SIZE;
+				for (uint64_t i = 0; i < file_entry->getSizeData() / BUFFER_SIZE;
 					i++) {
 					volume_stream.read(buffer, BUFFER_SIZE);
 					export_file_stream.write(buffer, BUFFER_SIZE);
@@ -820,13 +820,13 @@ bool Volume::del(Entry* entry, Entry* parent)
 		uint8_t subData[BLOCK_SIZE];
 
 		entry->seekToHeadOfData_p(file);
-		uint64_t startWrite = (size_t)file.tellp();
+		uint64_t startWrite = file.tellp();
 
 		entry->seekToEndOfData_g(file);
-		uint64_t startRead = (size_t)file.tellg();
+		uint64_t startRead = file.tellg();
 
 		this->VolumeInfo.seekToHeadOfEntryTable_g(file);
-		uint64_t endDataField = (size_t)file.tellg();
+		uint64_t endDataField = file.tellg();
 
 		uint64_t shiftingDataSize = endDataField - startRead;
 
@@ -853,7 +853,7 @@ bool Volume::del(Entry* entry, Entry* parent)
 		this->VolumeInfo.updateAfterDel(entry);
 		this->VolumeInfo.write(file);
 
-		newEndPosOfVolumeFile = file.tellp();
+		newEndPosOfVolumeFile = (uint64_t)file.tellp();
 	}
 	file.close();
 
@@ -893,7 +893,10 @@ void Volume::resize(uint64_t const& size)
 	}
 
 	// Resize this volume file and close file
-	SetFilePointer(file, size, 0, FILE_BEGIN);
+	LARGE_INTEGER largeInt;
+	largeInt.QuadPart = size;
+
+	SetFilePointerEx(file, largeInt, 0, FILE_BEGIN);
 	SetEndOfFile(file);
 	CloseHandle(file);
 }
@@ -1016,7 +1019,7 @@ void Volume::seekToHeadOfEntryTable_p(fstream& file) const
 void Volume::writePasswordChange() {
 	fstream file(this->Path, ios_base::out | ios_base::binary);
 
-	size_t newSize = 0;
+	uint64_t newSize = 0;
 	if (file.is_open()) {
 		this->seekToHeadOfEntryTable_p(file);
 		this->EntryTable.write(file);
