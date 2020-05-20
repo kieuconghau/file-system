@@ -41,6 +41,9 @@ string GUI::hidePassword() {
             while (GetKeyState(VK_ESCAPE) & 0x8000) {};
             continue;
         }
+        else if (temp == '\0') {
+            continue;
+        }
         else if (temp == '\r') {
             break;
         }
@@ -57,7 +60,6 @@ string GUI::hidePassword() {
             std::cout << "\b*";
             input.push_back(temp);
         }
-        Sleep(100);
     }
     return input;
 }
