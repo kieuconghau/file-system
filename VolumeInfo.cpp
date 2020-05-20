@@ -66,12 +66,12 @@ void VolumeInfo::updateAfterSetPassword(size_t const& oldPasswordLen, size_t con
 	this->SizeEntryTable += (newPasswordLen - oldPasswordLen);
 }
 
-void VolumeInfo::updateOffsetEntryTable(uint32_t const& newOffsetEntryTable)
+void VolumeInfo::updateOffsetEntryTable(uint64_t const& newOffsetEntryTable)
 {
 	this->OffsetEntryTable = newOffsetEntryTable;
 }
 
-void VolumeInfo::updateSizeEntryTable(uint32_t const& newTailPosEntryTable)
+void VolumeInfo::updateSizeEntryTable(uint64_t const& newTailPosEntryTable)
 {
 	this->SizeEntryTable = newTailPosEntryTable - this->OffsetEntryTable;
 }

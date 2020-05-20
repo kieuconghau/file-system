@@ -28,8 +28,8 @@ public:
 	void updateAfterSetPassword(size_t const& oldPasswordLen, size_t const& newPasswordLen);
 	
 	/*===== CALL IN PAIR =====*/
-	void updateOffsetEntryTable(uint32_t const& newOffsetEntryTable);
-	void updateSizeEntryTable(uint32_t const& newTailPosEntryTable);
+	void updateOffsetEntryTable(uint64_t const& newOffsetEntryTable);
+	void updateSizeEntryTable(uint64_t const& newTailPosEntryTable);
 	/*========================*/
 
 private:
