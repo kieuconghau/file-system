@@ -13,7 +13,7 @@ public:
 	~VolumeInfo();
 
 	bool isEmptyVolume() const;
-	uint32_t getEntryTableOffset() const;
+	uint64_t getEntryTableOffset() const;
 
 	void write(fstream& file) const;
 	void read(fstream& file) const;
@@ -39,6 +39,6 @@ private:
 	/*==========*/
 	uint32_t Signature;
 	uint32_t SizeEntryTable;
-	uint32_t OffsetEntryTable;
+	uint64_t OffsetEntryTable;
 	/*==========*/
 };
