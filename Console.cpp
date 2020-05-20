@@ -50,7 +50,7 @@ void printSpace(int n) {
     }
 }
 
-string numCommas(uint32_t value) {
+string numCommas(uint64_t value) {
     string numWithCommas = to_string(value);
     int insertPosition = numWithCommas.length() - 3;
     while (insertPosition > 0) {

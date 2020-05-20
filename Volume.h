@@ -3,7 +3,6 @@
 #include "GUI.h"
 #include "VolumeInfo.h"
 #include "EntryTable.h"
-#include "FileData.h"
 
 #include <Windows.h>
 #include <queue>
@@ -56,7 +55,7 @@ private:
 	void exportGUI(Entry* f);
 	ExportState exportFile(Entry* export_file_entry, string const& destination_path);
 
-	void resize(size_t const& size);
+	void resize(uint64_t const& size);
 
 private:
 	string		Path;

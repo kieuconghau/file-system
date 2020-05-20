@@ -16,7 +16,6 @@ EntryTable::~EntryTable()
 
 void EntryTable::read(fstream& file, VolumeInfo const& volumeInfo)
 {
-	size_t i = 0;
 	while (!volumeInfo.isEndOfEntryTable_g(file)) {
 		Entry entry;
 		entry.read(file);

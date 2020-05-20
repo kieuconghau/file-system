@@ -316,7 +316,7 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	}
 
 	// Update the offset of Entry Table.
-	this->VolumeInfo.updateOffsetEntryTable((uint32_t)volumeStream.tellp());
+	this->VolumeInfo.updateOffsetEntryTable((uint64_t)volumeStream.tellp());
 
 	// Add new entries to Entry Table (RAM)
 	for (size_t i = 0; i < file_entry_vector.size(); ++i) {
@@ -327,7 +327,7 @@ bool Volume::import(string const& new_file_path, Entry* parent)
 	this->EntryTable.write(volumeStream);
 	
 	// Update the size of Entry Table
-	this->VolumeInfo.updateSizeEntryTable((uint32_t)volumeStream.tellp());
+	this->VolumeInfo.updateSizeEntryTable((uint64_t)volumeStream.tellp());
 
 	// Write the Volume Info Area
 	this->VolumeInfo.write(volumeStream);
@@ -803,7 +803,7 @@ bool Volume::del(Entry* entry, Entry* parent)
 	}
 
 	// Step 3: Delete this entry on File
-	size_t newEndPosOfVolumeFile = 0;
+	uint64_t newEndPosOfVolumeFile = 0;
 	fstream file(this->Path, ios_base::in | ios_base::out | ios_base::binary);
 	if (file.is_open()) {
 		file.clear();
@@ -813,17 +813,17 @@ bool Volume::del(Entry* entry, Entry* parent)
 		uint8_t subData[BLOCK_SIZE];
 
 		entry->seekToHeadOfData_p(file);
-		size_t startWrite = (size_t)file.tellp();
+		uint64_t startWrite = (size_t)file.tellp();
 
 		entry->seekToEndOfData_g(file);
-		size_t startRead = (size_t)file.tellg();
+		uint64_t startRead = (size_t)file.tellg();
 
 		this->VolumeInfo.seekToHeadOfEntryTable_g(file);
-		size_t endDataField = (size_t)file.tellg();
+		uint64_t endDataField = (size_t)file.tellg();
 
-		size_t shiftingDataSize = endDataField - startRead;
+		uint64_t shiftingDataSize = endDataField - startRead;
 
-		for (size_t i = 0; i < shiftingDataSize / BLOCK_SIZE; ++i) {
+		for (uint64_t i = 0; i < shiftingDataSize / BLOCK_SIZE; ++i) {
 			file.seekg(startRead);
 			file.read((char*)subData, BLOCK_SIZE);
 			startRead += BLOCK_SIZE;
@@ -859,7 +859,7 @@ bool Volume::del(Entry* entry, Entry* parent)
 	return isTotallyDeleted;
 }
 
-void Volume::resize(size_t const& size)
+void Volume::resize(uint64_t const& size)
 {
 	// Convert the path of this volume from string to LPTSTR
 	LPTSTR lpfname = new TCHAR[this->Path.length() + 1];
