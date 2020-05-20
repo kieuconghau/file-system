@@ -454,20 +454,29 @@ ExportState Volume::exportFile(Entry* export_file_entry,
 	queue<Entry*> export_file_entry_queue;
 	export_file_entry_queue.push(export_file_entry);
 
+	bool firstItem = true;
 	while (export_file_entry_queue.empty() == false) {
 		Entry* file_entry = export_file_entry_queue.front();
 		export_file_entry_queue.pop();
 
 		if (file_entry->isLocked()) {
-			state = ExportState::NOT_TOTALLY;
-			continue;
+			if (firstItem != true) {
+				state = ExportState::NOT_TOTALLY;
+				continue;
+			}
 		}
+		firstItem = false;
 
 		// If the file in question is a normal file (not a folder).
 		if (file_entry->isFolder() == false) {
 			string file_creation_path;
-			file_creation_path = destination_path + "\\"
-				+ file_entry->getPath().substr(
+			file_creation_path = destination_path + "\\";
+
+			if (file_entry->hasParent(this->EntryTable.Root)) {
+				file_creation_path += file_entry->getName();
+			}
+			else {
+				file_creation_path += file_entry->getPath().substr(
 					export_file_entry->getPath().length()
 					- (export_file_entry->getName().length() + 1),
 					file_entry->getPath().length()
@@ -475,6 +484,7 @@ ExportState Volume::exportFile(Entry* export_file_entry,
 						- (export_file_entry->getName().length() + 1)
 						)
 				);
+			}
 
 			ofstream export_file_stream;
 			export_file_stream.open(file_creation_path, ios::binary);
