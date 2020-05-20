@@ -60,7 +60,7 @@ public:
 	void seekToEndOfData_g(fstream& file) const;
 	void seekToEndOfData_p(fstream& file) const;
 
-	void getFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd, string file_path, string file_name_in_volume, uint32_t& insert_pos);
+	void getFileInfoAndConvertToEntry(_WIN32_FIND_DATAA ffd, string file_path, string file_name_in_volume, uint64_t& insert_pos);
 	void standardizeAfterImport(Entry* parent);
 
 private:
