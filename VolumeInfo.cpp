@@ -16,7 +16,7 @@ bool VolumeInfo::isEmptyVolume() const
 	return this->SizeEntryTable == 0;
 }
 
-uint32_t VolumeInfo::getEntryTableOffset() const
+uint64_t VolumeInfo::getEntryTableOffset() const
 {
 	return this->OffsetEntryTable;
 }
