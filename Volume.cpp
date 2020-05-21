@@ -422,7 +422,7 @@ void Volume::exportGUI(Entry* f) {
 ExportState Volume::exportFile(Entry* export_file_entry,
 	string const& destination_path) {
 
-	fstream volume_stream(this->Path, ios::in, ios_base::binary);
+	fstream volume_stream(this->Path, ios::in | ios_base::binary);
 	if (volume_stream.is_open() == false) {
 		throw "Volume Path Error";
 	}
@@ -1027,7 +1027,7 @@ void Volume::seekToHeadOfEntryTable_p(fstream& file) const
 }
 
 void Volume::writePasswordChange() {
-	fstream file(this->Path, ios_base::out | ios_base::binary);
+	fstream file(this->Path, ios_base::in | ios_base::out | ios_base::binary);
 
 	uint64_t newSize = 0;
 	if (file.is_open()) {
